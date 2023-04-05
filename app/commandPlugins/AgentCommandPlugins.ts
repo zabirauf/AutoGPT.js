@@ -1,7 +1,8 @@
 import { LLMMessage, LLMModel, callLLMChatCompletion } from "~/utils/llmUtils";
 import { Config } from "~/utils/config";
+import { CommandPlugin } from "./CommandPlugin";
 
-export interface Agent {
+interface Agent {
   name: string;
   task: string;
   messages: LLMMessage[];
@@ -11,7 +12,7 @@ export interface Agent {
 let nextkey = 0;
 const agents: {[key: string]: Agent} = {};
 
-export async function startAgent(
+async function startAgent(
   name: string,
   task: string,
   prompt: string,
@@ -25,7 +26,7 @@ export async function startAgent(
     return `Agent ${name} created with key ${key}. First response: ${agentResponse}`;
 }
 
-export async function createAgent(
+async function createAgent(
   name: string,
   task: string,
   prompt: string,
@@ -51,7 +52,7 @@ export async function createAgent(
   return { key, agentReply };
 }
 
-export async function messageAgent(
+async function messageAgent(
   key: string,
   message: string
 ): Promise<string> {
@@ -67,11 +68,11 @@ export async function messageAgent(
   return agentReply;
 }
 
-export function listAgents(): [string, string][] {
+function listAgents(): [string, string][] {
   return Object.keys(agents).map((key: string) => [key, agents[key].task]);
 }
 
-export function deleteAgent(key: string): boolean {
+function deleteAgent(key: string): boolean {
   if (agents[key]) {
     delete agents[key];
     return true;
@@ -79,3 +80,42 @@ export function deleteAgent(key: string): boolean {
 
   return false;
 }
+
+const AgentCommandPlugins: CommandPlugin[] = [
+  {
+    command: "start_agent",
+    name: "Start GPT Agent",
+    arguments: {
+      name: "name",
+      task: "short_task_desc",
+      prompt: "prompt"
+    },
+    execute: (args) => startAgent(args["name"], args["task"], args["prompt"])
+  },
+  {
+    command: "message_agent",
+    name: "Message GPT Agent",
+    arguments: {
+      key: "key",
+      message: "message"
+    },
+    execute: (args) => messageAgent(args["key"], args["message"])
+  },
+  {
+    command: "list_agents",
+    name: "List GPT Agents",
+    arguments: {},
+    execute: async (args) => JSON.stringify(listAgents())
+  },
+  {
+    command: "delete_agent",
+    name: "Delete GPT Agent",
+    arguments: {
+      key: "key"
+    },
+    execute: async (args) => deleteAgent(args["key"])
+        ? `Agent ${args["key"]} deleted.`
+        : `Agent ${args["key"]} does not exist.`
+  }
+];
+export default AgentCommandPlugins;
