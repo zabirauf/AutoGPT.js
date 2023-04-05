@@ -29,6 +29,7 @@
     "/public/build"
   ],
   "dependencies": {
+    "@dqbd/tiktoken": "^1.0.2",
     "@prisma/client": "^4.11.0",
     "@remix-run/node": "^1.15.0",
     "@remix-run/react": "^1.15.0",

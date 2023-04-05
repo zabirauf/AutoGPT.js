@@ -1,11 +1,13 @@
 import AgentCommandPlugins from "./AgentCommandPlugins";
 import MemoryCommandPlugins from "./MemoryCommandPlugins";
 import FileOperationCommandPlugins from "./FileOperationCommandPlugins";
+import TaskCompleteCommandPlugins from "./TaskCompleteCommandPlugins";
 
 export const CommandPlugins = [
   ...MemoryCommandPlugins,
   ...AgentCommandPlugins,
-  ...FileOperationCommandPlugins
+  ...FileOperationCommandPlugins,
+  ...TaskCompleteCommandPlugins
 ];
 
 export async function executeCommand(

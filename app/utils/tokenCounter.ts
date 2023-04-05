@@ -1,0 +1,44 @@
+import { encoding_for_model } from "@dqbd/tiktoken";
+import type { LLMMessage, LLMModel } from "./llmUtils";
+import type { TiktokenModel } from "@dqbd/tiktoken";
+import { assertNever } from "./asserts";
+
+export function countMessageTokens(messages: LLMMessage[], model: LLMModel): number {
+    const encoding = encoding_for_model(model as TiktokenModel);
+
+    let tokensPerMessage = 0;
+    let tokensPerName = 0;
+
+    if (model === "gpt-3.5-turbo") {
+        return countMessageTokens(messages, "gpt-3.5-turbo-0301");
+    } else if (model === "gpt-4") {
+        return countMessageTokens(messages, "gpt-4-0314");
+    } else if (model === "gpt-3.5-turbo-0301") {
+        tokensPerMessage = 4;
+        tokensPerName = -1;
+    } else if (model === "gpt-4-0314") {
+        tokensPerMessage = 3;
+        tokensPerName = 1;
+    } else {
+        assertNever(model);
+    }
+
+    let numTokens = 0;
+    for(const message of messages) {
+        numTokens += tokensPerMessage;
+        for(const [key, val] of Object.entries(message)) {
+            numTokens += encoding.encode(val).length;
+            if(key === "name") {
+                numTokens += tokensPerName;
+            }
+        }
+    }
+
+    numTokens += 3 // every reply is primed with <|start|>assistant<|message|>
+    return numTokens;
+}
+
+export function countStringTokens(str: string, model: LLMModel): number {
+    const encoding = encoding_for_model(model as TiktokenModel);
+    return encoding.encode(str).length;
+}
