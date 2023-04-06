@@ -1,10 +1,16 @@
-import type { V2_MetaFunction } from "@remix-run/node";
-import { Link } from "@remix-run/react";
-
-
-export const meta: V2_MetaFunction = () => [{ title: "Remix Notes" }];
+import { useEffect } from 'react';
+import { CommandPlugins } from "~/commandPlugins";
+import { chatWithAI } from "~/utils/chat";
+import { generatePrompt } from "~/utils/prompt";
+import { countStringTokens } from '~/utils/tokenCounter';
 
 export default function Index() {
+  useEffect(() => {
+    console.log(chatWithAI);
+    console.log(CommandPlugins);
+    console.log(generatePrompt());
+    console.log(countStringTokens("Hello world", "gpt-3.5-turbo-0301"));
+  }, []);
   return (
     <main className="relative min-h-screen bg-white sm:flex sm:items-center sm:justify-center">
       <div className="relative sm:pb-16 sm:pt-8">
