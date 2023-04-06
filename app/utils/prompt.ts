@@ -1,19 +1,19 @@
-import { CommandPlugins } from "../commandPlugins";
+import { CommandPlugins } from '../commandPlugins';
 
 export function generatePrompt() {
   const commandsStr = CommandPlugins.map((commandPlugin, index) => {
-    const argsStr = Object.entries(commandPlugin)
+    const argsStr = Object.entries(commandPlugin.arguments)
       .map(([key, val]) => `"${key}": "<${val}>"`)
       .join(", ");
     return `${index + 1}. ${commandPlugin.name}: "${
       commandPlugin.command
-    }", args: ${argsStr}`;
+    }", args: ${argsStr === "" ? `""` : argsStr}`;
   }).join("\n");
 
   return `
 CONSTRAINTS:
 
-1. ~4000 word limit for memory. Your memory is short, so immidiately save important information to long term memory and code to files.
+1. ~4000 word limit for memory. Your memory is short, so immediately save important information to long term memory and code to files.
 2. No user assistance
 
 COMMANDS:
@@ -31,7 +31,7 @@ PERFORMANCE EVALUATION:
 1. Continuously review and analyze your actions to ensure you are performing to the best of your abilities. 
 2. Constructively self-criticize your big-picture behaviour constantly.
 3. Reflect on past decisions and strategies to refine your approach.
-4. Every command has a cost, so be smart and efficent. Aim to complete tasks in the least number of steps.
+4. Every command has a cost, so be smart and efficient. Aim to complete tasks in the least number of steps.
 
 You should only respond in JSON format as described below
 
@@ -53,5 +53,5 @@ RESPONSE FORMAT:
     }
 }
 
-Ensure the response can be parsed by Python json.loads`;
+Ensure the response can be parsed by JavaScript JSON.parse`;
 }

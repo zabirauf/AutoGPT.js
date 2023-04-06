@@ -1,7 +1,7 @@
-import { encoding_for_model } from "@dqbd/tiktoken";
+import { assertNever } from './asserts';
+import { encoding_for_model } from '@dqbd/tiktoken';
 import type { LLMMessage, LLMModel } from "./llmUtils";
 import type { TiktokenModel } from "@dqbd/tiktoken";
-import { assertNever } from "./asserts";
 
 export function countMessageTokens(messages: LLMMessage[], model: LLMModel): number {
     const encoding = encoding_for_model(model as TiktokenModel);
@@ -34,11 +34,16 @@ export function countMessageTokens(messages: LLMMessage[], model: LLMModel): num
         }
     }
 
+    encoding.free();
+
     numTokens += 3 // every reply is primed with <|start|>assistant<|message|>
     return numTokens;
 }
 
 export function countStringTokens(str: string, model: LLMModel): number {
     const encoding = encoding_for_model(model as TiktokenModel);
-    return encoding.encode(str).length;
+    const len = encoding.encode(str).length;
+    encoding.free();
+
+    return len;
 }
