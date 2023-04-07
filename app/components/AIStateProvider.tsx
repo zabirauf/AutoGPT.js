@@ -1,5 +1,5 @@
 import { getAPIKey } from "AutoGPT/utils/apiKey";
-import { useReducer, createContext, useContext } from "react";
+import { useReducer, createContext, useContext, useEffect } from "react";
 import type { Dispatch, PropsWithChildren } from "react";
 import { assertNever } from "~/utils/asserts";
 
@@ -43,6 +43,10 @@ export function AIStateProvider({ children }: PropsWithChildren<{}>) {
   const [aiInfoState, aiInfoDispatcher] = useReducer(aiInfoReducer, {
     ...DEFAULT_AI_STATE.aiInfo,
   });
+
+  useEffect(() => {
+    setupDispatcher("init_stage");
+  }, []);
 
   return (
     <AIStateContext.Provider value={{ aiInfo: aiInfoState, setup: setupState }}>

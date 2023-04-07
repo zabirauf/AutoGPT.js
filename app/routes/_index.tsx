@@ -24,18 +24,12 @@ export default function Index() {
 
 function AISetup() {
   const { setup } = useAIState();
-  const { setupDispatcher } = useAIStateDispatcher();
 
-  useEffect(() => {
-    setupDispatcher("init_stage");
-  }, []);
-
-  const nextStageCallback = useCallback(() => setupDispatcher("next_stage"), []);
   return (
     <>
       {setup.stage === "not_init" && <LoadingSpinner />}
       {setup.stage === "get_token" && (
-        <TokenRequest onTokenSaved={nextStageCallback} />
+        <TokenRequest />
       )}
       {setup.stage === "get_ai_info" && <AIInfoForm />}
       {setup.stage === "get_ai_goals" && <AIGoalsForm />}
