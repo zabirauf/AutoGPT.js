@@ -27,7 +27,7 @@ export function AIInfoForm() {
   }, []);
 
   return (
-    <div className="bg-white shadow sm:rounded-lg w-96">
+    <div className="bg-white shadow sm:rounded-lg sm:w-96">
       <div className="px-4 py-5 sm:p-6">
         <h3 className="text-base font-semibold leading-6 text-gray-900">
           AI Information
@@ -113,7 +113,7 @@ export function AIGoalsForm() {
   }, []);
 
   return (
-    <div className="bg-white shadow sm:rounded-lg w-96">
+    <div className="bg-white shadow sm:rounded-lg sm:w-96">
       <div className="px-4 py-5 sm:p-6">
         <h3 className="text-base font-semibold leading-6 text-gray-900">
           AI Goals
@@ -122,9 +122,9 @@ export function AIGoalsForm() {
           <div className="w-full sm:max-w-xs">
             <label
               htmlFor="goals"
-              className="block text-sm font-medium leading-6 text-gray-900"
+              className="block text-sm font-medium leading-6 text-gray-600"
             >
-              List down AI goals
+              List down each goal in new line
             </label>
             <div className="mt-2">
               <textarea
