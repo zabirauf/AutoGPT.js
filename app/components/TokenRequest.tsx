@@ -1,18 +1,20 @@
 import { useCallback, useRef } from 'react';
-import { setAPIKey } from "AutoGPT/utils/apiKey";
+import { setAPIKey, getAPIKey } from "AutoGPT/utils/apiKey";
+import { useAIStateDispatcher } from './AIStateProvider';
 
-export interface TokenRequestProps {
-  onTokenSaved?: () => void;
-}
-export function TokenRequest(props: TokenRequestProps) {
+export function TokenRequest() {
+  const { setupDispatcher } = useAIStateDispatcher();
   const tokenRef = useRef<HTMLInputElement>(null);
   const onSaveClicked = useCallback(() => {
     if (tokenRef.current?.value) {
       setAPIKey(tokenRef.current?.value);
-
-      props.onTokenSaved?.();
     }
-  }, [props.onTokenSaved]);
+
+    if (getAPIKey()) {
+      // Only go to next stage if there is an API key present
+      setupDispatcher("next_stage")
+    }
+  }, []);
 
   return (
     <div className="bg-white shadow sm:rounded-lg">
@@ -37,7 +39,7 @@ export function TokenRequest(props: TokenRequestProps) {
               name="token"
               id="token"
               className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-              placeholder="sk-1234..."
+              placeholder={getAPIKey() ?? "sk-1234..."}
             />
           </div>
           <button
