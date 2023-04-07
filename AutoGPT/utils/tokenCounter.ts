@@ -1,4 +1,4 @@
-import { assertNever } from './asserts';
+import { assertNever } from '../../app/utils/asserts';
 import { encoding_for_model } from '@dqbd/tiktoken';
 import type { LLMMessage, LLMModel } from "./llmUtils";
 import type { TiktokenModel } from "@dqbd/tiktoken";

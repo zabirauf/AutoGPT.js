@@ -16,7 +16,8 @@
     "forceConsistentCasingInFileNames": true,
     "baseUrl": ".",
     "paths": {
-      "~/*": ["./app/*"]
+      "~/*": ["./app/*"],
+      "AutoGPT": ["./AutoGPT/*"]
     },
     "skipLibCheck": true,
 

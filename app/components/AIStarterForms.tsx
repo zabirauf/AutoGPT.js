@@ -1,4 +1,4 @@
-export function StarterData() {
+export function AIInfoForm() {
   return (
     <form>
       <div className="space-y-12">
