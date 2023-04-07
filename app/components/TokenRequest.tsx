@@ -1,5 +1,5 @@
 import { useCallback, useRef } from 'react';
-import { setAPIKey } from "~/utils/apiKey";
+import { setAPIKey } from "AutoGPT/utils/apiKey";
 
 export interface TokenRequestProps {
   onTokenSaved?: () => void;

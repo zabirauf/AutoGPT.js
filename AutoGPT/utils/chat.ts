@@ -15,8 +15,8 @@ export async function chatWithAI({
   prompt,
   userInput,
   fullMessageHistory,
-  permanentMemory: permanentMemory,
-  tokenLimit: tokenLimit,
+  permanentMemory,
+  tokenLimit,
   debug = false,
 }: ChatWithAiArgs): Promise<string> {
   while (true) {

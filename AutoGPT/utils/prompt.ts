@@ -1,4 +1,4 @@
-import { CommandPlugins } from '../commandPlugins';
+import { CommandPlugins } from '../../AutoGPT/commandPlugins';
 
 export function generatePrompt() {
   const commandsStr = CommandPlugins.map((commandPlugin, index) => {

@@ -1,5 +1,5 @@
-import { LLMMessage, LLMModel, callLLMChatCompletion } from "~/utils/llmUtils";
-import { Config } from "~/utils/config";
+import { LLMMessage, LLMModel, callLLMChatCompletion } from "AutoGPT/utils/llmUtils";
+import { Config } from "AutoGPT/utils/config";
 import { CommandPlugin } from "./CommandPlugin";
 
 interface Agent {
