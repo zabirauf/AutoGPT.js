@@ -1,65 +1,161 @@
+import { useCallback, useRef } from "react";
+import { useAIState, useAIStateDispatcher } from "./AIStateProvider";
+
 export function AIInfoForm() {
+  const { aiInfo } = useAIState();
+  const { setupDispatcher, aiInfoDispatcher } = useAIStateDispatcher();
+
+  const nameRef = useRef<HTMLInputElement>(null);
+  const descriptionRef = useRef<HTMLTextAreaElement>(null);
+
+  const onNextButtonClicked = useCallback(() => {
+    const name = nameRef.current?.value;
+    if (name) {
+      aiInfoDispatcher({ type: "set_name", name });
+    }
+
+    const description = descriptionRef.current?.value;
+    if (description) {
+      aiInfoDispatcher({ type: "set_description", description });
+    }
+
+    setupDispatcher("next_stage");
+  }, []);
+
+  const onBackButtonClicked = useCallback(() => {
+    setupDispatcher("prev_stage");
+  }, []);
+
   return (
-    <form>
-      <div className="space-y-12">
-        <div className="border-b border-gray-900/10 pb-12">
-          <h2 className="text-base font-semibold leading-7 text-gray-900">
-            Profile
-          </h2>
-          <p className="mt-1 text-sm leading-6 text-gray-600">
-            This information will be displayed publicly so be careful what you
-            share.
-          </p>
-
-          <div className="mt-10 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
-            <div className="sm:col-span-4">
-              <label
-                htmlFor="username"
-                className="block text-sm font-medium leading-6 text-gray-900"
-              >
-                Username
-              </label>
-              <div className="mt-2">
-                <div className="flex rounded-md shadow-sm ring-1 ring-inset ring-gray-300 focus-within:ring-2 focus-within:ring-inset focus-within:ring-indigo-600 sm:max-w-md">
-                  <span className="flex select-none items-center pl-3 text-gray-500 sm:text-sm">
-                    workcation.com/
-                  </span>
-                  <input
-                    type="text"
-                    name="username"
-                    id="username"
-                    autoComplete="username"
-                    className="block flex-1 border-0 bg-transparent py-1.5 pl-1 text-gray-900 placeholder:text-gray-400 focus:ring-0 sm:text-sm sm:leading-6"
-                    placeholder="janesmith"
-                  />
-                </div>
-              </div>
+    <div className="bg-white shadow sm:rounded-lg w-96">
+      <div className="px-4 py-5 sm:p-6">
+        <h3 className="text-base font-semibold leading-6 text-gray-900">
+          AI Information
+        </h3>
+        <form className="mt-5 sm:flex flex-col sm:items-center">
+          <div className="w-full sm:max-w-xs">
+            <label
+              htmlFor="name"
+              className="block text-sm font-medium leading-6 text-gray-900"
+            >
+              Name of your AI
+            </label>
+            <div className="mt-2">
+              <input
+                ref={nameRef}
+                type="text"
+                name="name"
+                id="name"
+                className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                placeholder={aiInfo.name}
+              />
             </div>
-
-            <div className="col-span-full">
-              <label
-                htmlFor="about"
-                className="block text-sm font-medium leading-6 text-gray-900"
-              >
-                About
-              </label>
-              <div className="mt-2">
-                <textarea
-                  id="about"
-                  name="about"
-                  rows={3}
-                  className="block w-full rounded-md border-0 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:py-1.5 sm:text-sm sm:leading-6"
-                  defaultValue={""}
-                />
-              </div>
-              <p className="mt-3 text-sm leading-6 text-gray-600">
-                Write a few sentences about yourself.
-              </p>
-            </div>
-
           </div>
-        </div>
+
+          <div className="w-full mt-4 sm:max-w-xs">
+            <label
+              htmlFor="description"
+              className="block text-sm font-medium leading-6 text-gray-900"
+            >
+              Describe your AI's role
+            </label>
+            <div className="mt-2">
+              <textarea
+                ref={descriptionRef}
+                name="description"
+                id="description"
+                className="block w-full h-48 rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                placeholder={aiInfo.description}
+              />
+            </div>
+          </div>
+
+
+          <div className="w-full mt-4 sm:max-w-xs flex flex-row-reverse">
+          <button
+            type="button"
+            className="mt-3 inline-flex w-full rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 sm:ml-3 sm:mt-0 sm:w-auto"
+            onClick={onNextButtonClicked}
+          >
+            Next
+          </button>
+          <button
+            type="button"
+            className="mt-3 inline-flex w-full rounded-md bg-gray-500 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 sm:ml-3 sm:mt-0 sm:w-auto"
+            onClick={onBackButtonClicked}
+          >
+            Back
+          </button>
+          </div>
+        </form>
       </div>
-    </form>
+    </div>
+  );
+}
+
+export function AIGoalsForm() {
+  const { aiInfo } = useAIState();
+  const { setupDispatcher, aiInfoDispatcher } = useAIStateDispatcher();
+
+  const goalsRef = useRef<HTMLTextAreaElement>(null);
+
+  const onDoneButtonClicked = useCallback(() => {
+    const goals = goalsRef.current?.value;
+    if (goals) {
+      aiInfoDispatcher({ type: "set_goals", goals: goals.split('\n') });
+    }
+
+    setupDispatcher("next_stage");
+  }, []);
+
+  const onBackButtonClicked = useCallback(() => {
+    setupDispatcher("prev_stage");
+  }, []);
+
+  return (
+    <div className="bg-white shadow sm:rounded-lg w-96">
+      <div className="px-4 py-5 sm:p-6">
+        <h3 className="text-base font-semibold leading-6 text-gray-900">
+          AI Goals
+        </h3>
+        <form className="mt-5 sm:flex flex-col sm:items-center">
+          <div className="w-full sm:max-w-xs">
+            <label
+              htmlFor="goals"
+              className="block text-sm font-medium leading-6 text-gray-900"
+            >
+              List down AI goals
+            </label>
+            <div className="mt-2">
+              <textarea
+                ref={goalsRef}
+                name="goals"
+                id="goals"
+                className="block w-full h-48 rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                placeholder={aiInfo.goals.join('\n')}
+              />
+            </div>
+          </div>
+
+
+          <div className="w-full mt-4 sm:max-w-xs flex flex-row-reverse">
+          <button
+            type="button"
+            className="mt-3 inline-flex w-full rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 sm:ml-3 sm:mt-0 sm:w-auto"
+            onClick={onDoneButtonClicked}
+          >
+            Done
+          </button>
+          <button
+            type="button"
+            className="mt-3 inline-flex w-full rounded-md bg-gray-500 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 sm:ml-3 sm:mt-0 sm:w-auto"
+            onClick={onBackButtonClicked}
+          >
+            Back
+          </button>
+          </div>
+        </form>
+      </div>
+    </div>
   );
 }
