@@ -1,10 +1,8 @@
-import { useCallback, useEffect, useReducer, useState } from "react";
 import { TokenRequest } from "~/components/TokenRequest";
-import { getAPIKey } from "AutoGPT/utils/apiKey";
 import { AIGoalsForm, AIInfoForm } from "~/components/AIStarterForms";
 import { LoadingSpinner } from "~/components/LoadingSpinner";
-import { assertNever } from "~/utils/asserts";
-import { AIStateProvider, useAIState, useAIStateDispatcher } from "~/components/AIStateProvider";
+import { AIStateProvider, useAIState } from "~/components/AIStateProvider";
+import { AutoGPTChatLoop } from "~/components/AutoGPTChatLoop";
 
 export default function Index() {
   return (
@@ -33,7 +31,7 @@ function AISetup() {
       )}
       {setup.stage === "get_ai_info" && <AIInfoForm />}
       {setup.stage === "get_ai_goals" && <AIGoalsForm />}
-      {setup.stage === "done" && <div>Yepeee!!</div>}
+      {setup.stage === "done" && <AutoGPTChatLoop />}
     </>
   );
 }

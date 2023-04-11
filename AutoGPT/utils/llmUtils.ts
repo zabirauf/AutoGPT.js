@@ -1,4 +1,5 @@
 import { getAPIKey } from "./apiKey";
+import { Config } from './config';
 
 export type LLMMessage =
   | { role: "system"; content: string; }
@@ -27,6 +28,8 @@ export async function callLLMChatCompletion(
   const apiKey = getAPIKey();
   const headers = new Headers();
   headers.set("Authorization", `Bearer ${apiKey}`);
+  headers.set("Content-Type", "application/json");
+  headers.set("Accept", "application/json");
 
   const response = await fetch("https://api.openai.com/v1/chat/completions", {
     method: "POST",
@@ -42,5 +45,38 @@ export async function callLLMChatCompletion(
 
   const resBody = await response.json();
 
-  return resBody.data.choices[0].message as string;
+  return resBody.choices[0].message.content as string;
+}
+
+export interface CallAIFunctionArgs {
+    function: string;
+    args: any[];
+    description: string;
+    model?: LLMModel;
+}
+
+export async function callAIFunction({
+    function: aiFunction,
+    args,
+    description,
+    model = Config.smart_llm_model,
+}: CallAIFunctionArgs): Promise<string> {
+    args = args.map(arg => (arg !== null ? String(arg) : 'None'));
+    const argsString = args.join(', ');
+
+    const messages: LLMMessage[] = [
+        {
+            role: 'system',
+            content: `You are now the following typescript function: \`\`\`# ${description}\n${aiFunction}\`\`\`\n\nOnly respond with your \`return\` value.`,
+        },
+        { role: 'user', content: argsString },
+    ];
+
+    const response = callLLMChatCompletion(
+        messages,
+        model,
+        0 /* temperature */,
+    );
+
+    return response;
 }
