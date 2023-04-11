@@ -1,6 +1,12 @@
-import { CommandPlugins } from '../../AutoGPT/commandPlugins';
+import { CommandPlugins } from '../commandPlugins';
 
-export function generatePrompt() {
+const promptStart = "Your decisions must always be made independently without seeking user assistance. Play to your strengths as an LLM and pursue simple strategies with no legal complications.";
+
+export function generatePrompt(aiName: string, aiRole: string, goals: string[]): string {
+  return `You are ${aiName}, ${aiRole}\n${promptStart}\n\nGOALS:\n\n${goals.join('\n')}\n\n${generateBasePrompt()}`;
+}
+
+function generateBasePrompt() {
   const commandsStr = CommandPlugins.map((commandPlugin, index) => {
     const argsStr = Object.entries(commandPlugin.arguments)
       .map(([key, val]) => `"${key}": "<${val}>"`)

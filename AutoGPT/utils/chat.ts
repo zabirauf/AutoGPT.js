@@ -1,11 +1,12 @@
-import { callLLMChatCompletion, LLMMessage } from './llmUtils';
-import { Config } from './config';
-import { countMessageTokens } from './tokenCounter';
+import { callLLMChatCompletion, LLMMessage } from "./llmUtils";
+import { Config } from "./config";
+import { countMessageTokens } from "./tokenCounter";
 
 interface ChatWithAiArgs {
   prompt: string;
   userInput: string;
   fullMessageHistory: LLMMessage[];
+  appendToFullMessageHistory: (messages: LLMMessage[]) => void;
   permanentMemory: string[];
   tokenLimit: number;
   debug?: boolean;
@@ -15,6 +16,7 @@ export async function chatWithAI({
   prompt,
   userInput,
   fullMessageHistory,
+  appendToFullMessageHistory,
   permanentMemory,
   tokenLimit,
   debug = false,
@@ -85,11 +87,13 @@ export async function chatWithAI({
         tokensRemaining
       );
 
-      fullMessageHistory.push({ role: "user", content: userInput });
-      fullMessageHistory.push({
-        role: "assistant",
-        content: assistantReply,
-      });
+      appendToFullMessageHistory([
+        { role: "user", content: userInput },
+        {
+          role: "assistant",
+          content: assistantReply,
+        },
+      ]);
 
       return assistantReply;
     } catch (error) {

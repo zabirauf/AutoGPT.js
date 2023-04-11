@@ -1,6 +1,6 @@
 import { CommandPlugin } from "./CommandPlugin";
 
-const permanentMemory: string[] = [];
+export const permanentMemory: string[] = [];
 
 function commitMemory(val: string) {
   permanentMemory.push(val);
