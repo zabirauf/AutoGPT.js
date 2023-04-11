@@ -1,6 +1,6 @@
 # AutoGPT.js
 
-The Auto-GPT inspired browser version to make it more accessible for people to run.
+The Auto-GPT [commit: 4839a0d89b2ac6569ab0eeb07e72506c97385b47] inspired browser version to make it more accessible for people to run.
 
 ## Development
 

@@ -3,12 +3,14 @@ import MemoryCommandPlugins from "./MemoryCommandPlugins";
 import FileOperationCommandPlugins from "./FileOperationCommandPlugins";
 import TaskCompleteCommandPlugins from "./TaskCompleteCommandPlugins";
 import { fixAndParseJson } from "../utils/jsonParsingAssist";
+import CodeGenerationCommandPlugin from "./CodeGenerationCommandPlugin";
 
 export const CommandPlugins = [
   ...MemoryCommandPlugins,
   ...AgentCommandPlugins,
   ...FileOperationCommandPlugins,
   ...TaskCompleteCommandPlugins,
+  ...CodeGenerationCommandPlugin
 ];
 
 export async function getCommand(

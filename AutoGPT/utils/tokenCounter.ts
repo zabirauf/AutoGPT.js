@@ -11,12 +11,10 @@ export function countMessageTokens(messages: LLMMessage[], model: LLMModel): num
 
     if (model === "gpt-3.5-turbo") {
         return countMessageTokens(messages, "gpt-3.5-turbo-0301");
-    } else if (model === "gpt-4") {
-        return countMessageTokens(messages, "gpt-4-0314");
     } else if (model === "gpt-3.5-turbo-0301") {
         tokensPerMessage = 4;
         tokensPerName = -1;
-    } else if (model === "gpt-4-0314") {
+    } else if (model === "gpt-4" || model === "gpt-4-32k") {
         tokensPerMessage = 3;
         tokensPerName = 1;
     } else {
