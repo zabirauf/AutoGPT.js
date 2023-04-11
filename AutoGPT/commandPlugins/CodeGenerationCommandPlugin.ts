@@ -60,7 +60,7 @@ const CodeGenerationCommandPlugin: CommandPlugin[] = [
       suggestions: "list_of_suggestions",
       code: "full_code_string",
     },
-    execute: (args) => improveCode(JSON.parse(args["suggestions"]), args["code"]),
+    execute: (args) => improveCode(args["suggestions"], args["code"]),
   },
   {
     command: "write_tests",
@@ -69,7 +69,7 @@ const CodeGenerationCommandPlugin: CommandPlugin[] = [
       code: "full_code_string",
       focus: "list_of_focus_areas",
     },
-    execute: (args) => writeTests(args["code"], JSON.parse(args["focus"]))
+    execute: (args) => writeTests(args["code"], args["focus"])
   },
 ];
 export default CodeGenerationCommandPlugin;
