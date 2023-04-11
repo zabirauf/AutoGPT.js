@@ -1,5 +1,5 @@
 
-export type CommandExecArgs = { [key: string]: string };
+export type CommandExecArgs = { [key: string]: any };
 export interface CommandPlugin {
     command: string;
     name: string;

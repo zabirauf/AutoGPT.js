@@ -1,14 +1,19 @@
 import { CommandPlugin } from "./CommandPlugin";
 
 let directoryHandle: FileSystemDirectoryHandle | null = null;
+let getDirectoryHandleFn: () => Promise<FileSystemDirectoryHandle | null>;
+
+export function initFileHandlerOperations({
+  getDirectoryHandle: _getDirectoryHandle,
+}: {
+  getDirectoryHandle: typeof getDirectoryHandleFn;
+}) {
+  getDirectoryHandleFn = _getDirectoryHandle;
+}
 
 async function getDirectoryHandle() {
   if (!directoryHandle) {
-    if (window.showDirectoryPicker) {
-      directoryHandle = await window.showDirectoryPicker();
-    } else {
-      //TODO: Create in-memory directory/file system
-    }
+    directoryHandle = await getDirectoryHandleFn();
   }
 
   return directoryHandle!;
