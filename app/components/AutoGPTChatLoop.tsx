@@ -1,4 +1,11 @@
-import { useState, useEffect, Fragment, useMemo, useRef } from "react";
+import {
+  useState,
+  useEffect,
+  Fragment,
+  useMemo,
+  useRef,
+  PropsWithChildren,
+} from "react";
 import { useAIState } from "./AIStateProvider";
 import { LLMMessage } from "AutoGPT/utils/llmUtils";
 import { ChatBubbleLeftEllipsisIcon } from "@heroicons/react/20/solid";
@@ -8,11 +15,34 @@ import { permanentMemory } from "AutoGPT/commandPlugins/MemoryCommandPlugins";
 import { executeCommand, getCommand } from "AutoGPT/commandPlugins/index";
 import { PauseButton, ResumeButton } from "./Buttons";
 import { useCallback } from "react";
+import {
+  AIResponseSchema,
+  fixAndParseJson,
+} from "AutoGPT/utils/jsonParsingAssist";
+import { assertNever } from "~/utils/asserts";
 
 const USER_INPUT =
   "Determine which next command to use, and respond using the format specified above:";
 
 export function AutoGPTChatLoop() {
+  const [activities, setActivities] = useState<Activity[]>([]);
+
+  const { isPaused, togglePause } = useAutoGPTChat((activity) =>
+    setActivities((prevState) => [...prevState, activity])
+  );
+
+  return (
+    <>
+      <ActivityFeed activities={activities} />
+      <div className="mt-8 flex w-full justify-center align-middle">
+        {!isPaused && <PauseButton onClick={togglePause} />}
+        {isPaused && <ResumeButton onClick={togglePause} />}
+      </div>
+    </>
+  );
+}
+
+function useAutoGPTChat(onActivity: (activity: Activity) => void) {
   const {
     aiInfo: { name, description, goals },
   } = useAIState();
@@ -23,9 +53,7 @@ export function AutoGPTChatLoop() {
   const prevMessageIndexRan = useRef<number>(-1); // Should be different from currMessageIndex
 
   const [currMessageIndex, setCurrMessageIndex] = useState<number>(0);
-  const [activities, setActivities] = useState<Activity[]>([]);
   const [isPaused, setIsPaused] = useState<boolean>(false);
-
   const togglePause = useCallback(() => {
     // Toggle paused
     setIsPaused(!isPaused);
@@ -37,18 +65,16 @@ export function AutoGPTChatLoop() {
   }, [isPaused, currMessageIndex]);
 
   useEffect(() => {
-    if (isChatInProgress.current || prevMessageIndexRan.current === currMessageIndex || isPaused) {
+    if (
+      isChatInProgress.current ||
+      prevMessageIndexRan.current === currMessageIndex ||
+      isPaused
+    ) {
       // Already chat in progress or some other state changed, where we shouldn't run
       return;
     }
-    const appendToFullMessageHistory = (messages: LLMMessage[]) => {
+    const appendToFullMessageHistory = (messages: LLMMessage[]) =>
       fullMessageHistory.current.push(...messages);
-      setActivities(
-        fullMessageHistory.current.map((msg, index) =>
-          convertMessageToActivity(index, msg)
-        )
-      );
-    };
 
     isChatInProgress.current = true;
     prevMessageIndexRan.current = currMessageIndex;
@@ -74,10 +100,26 @@ export function AutoGPTChatLoop() {
 
         let result: string;
         if (commandName.toLowerCase() != "error" && typeof args !== "string") {
+          fixAndParseJson(assistantReply).then((val) => {
+            const aiResponse = val as AIResponseSchema;
+            if (aiResponse["thoughts"]) {
+              onActivity({
+                type: "chat:command",
+                response: aiResponse,
+                id: generateID(),
+              });
+            }
+          });
           const executedCommandResponse = await executeCommand(
             commandName,
             args
           );
+
+          onActivity({
+            type: "chat:command:executed",
+            executionResponse: executedCommandResponse,
+            id: generateID(),
+          });
           result = `Command ${commandName} returned: ${executedCommandResponse}`;
         } else {
           result = `Command ${commandName} threw the following error: ${args}`;
@@ -90,47 +132,32 @@ export function AutoGPTChatLoop() {
       });
   }, [currMessageIndex, isPaused]);
 
-  return (
-    <>
-      <ActivityFeed activities={activities} />
-      <div className="w-full flex justify-center align-middle mt-8">
-        {!isPaused && <PauseButton onClick={togglePause} />}
-        {isPaused && <ResumeButton onClick={togglePause} />}
-      </div>
-    </>
-  );
+  return { isPaused, togglePause };
 }
 
-function convertMessageToActivity(
-  id: number,
-  message: LLMMessage
-): ChatActivity {
-  return {
-    id,
-    type: `chat:${message.role}`,
-    content: message.content,
-  };
+interface ChatCommandActivity {
+  id: string;
+  type: "chat:command";
+  response: AIResponseSchema;
 }
-
-type ActivityChatType = `chat:${LLMMessage["role"]}`;
-
-interface ChatActivity {
-  id: number;
-  type: ActivityChatType;
-  content: string;
+interface ChatCommandExecutedActivity {
+  id: string;
+  type: "chat:command:executed";
+  executionResponse: string;
 }
-
-interface AppActivity {
-  id: number;
+interface AppAskUserActivity {
+  id: string;
   type: "app:ask_user";
 }
+type Activity =
+  | ChatCommandActivity
+  | ChatCommandExecutedActivity
+  | AppAskUserActivity;
 
-type Activity = AppActivity | ChatActivity;
-
-interface ChatActivityProps {
-  activity: ChatActivity;
+interface ActivityBaseProps extends PropsWithChildren {
+  activityText: string;
 }
-function ChatActivity({ activity }: ChatActivityProps) {
+function ActivityBase(props: ActivityBaseProps) {
   return (
     <>
       <div>
@@ -145,20 +172,106 @@ function ChatActivity({ activity }: ChatActivityProps) {
       </div>
       <div className="min-w-0 flex-1">
         <div>
-          <div className="text-sm">
-            {activity.type === "chat:system"
-              ? "🖥️"
-              : activity.type === "chat:user"
-              ? "🦸🏽"
-              : "🤖"}
-          </div>
+          <div className="text-sm">{props.activityText}</div>
         </div>
-        <div className="mt-2 text-sm text-gray-700">
-          <p>{activity.content}</p>
-        </div>
+        <div className="mt-2 text-sm text-gray-700">{props.children}</div>
       </div>
     </>
   );
+}
+
+interface InfoRowProps extends PropsWithChildren {
+  fieldName: string;
+}
+
+function InfoRow(props: InfoRowProps) {
+  return (
+    <div className="py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6 sm:py-5">
+      <dt className="text-sm font-medium text-gray-500">{props.fieldName}</dt>
+      <dd className="mt-1 text-sm text-gray-900 sm:col-span-2 sm:mt-0">
+        {props.children}
+      </dd>
+    </div>
+  );
+}
+
+interface ChatCommandActivityProps {
+  activity: ChatCommandActivity;
+}
+function ChatCommandActivity({ activity }: ChatCommandActivityProps) {
+  return (
+    <ActivityBase activityText="🤖">
+      <div className="border-t border-gray-200 px-4 py-5 sm:p-0">
+        <dl className="sm:divide-y sm:divide-gray-200">
+          {activity.response.command?.name && (
+            <InfoRow fieldName="Command">
+              <div>Command: <b>{activity.response.command.name}</b></div>
+              <div>Args: {JSON.stringify(activity.response.command.args)}</div>
+            </InfoRow>
+          )}
+          {activity.response.thoughts?.text && (
+            <InfoRow fieldName="Thoughts">
+              {activity.response.thoughts.text}
+            </InfoRow>
+          )}
+          {activity.response.thoughts?.reasoning && (
+            <InfoRow fieldName="Reasoning">
+              {activity.response.thoughts.reasoning}
+            </InfoRow>
+          )}
+          {activity.response.thoughts?.criticism && (
+            <InfoRow fieldName="Criticism">
+              {activity.response.thoughts.criticism}
+            </InfoRow>
+          )}
+          {activity.response.thoughts?.plan && (
+            <InfoRow fieldName="Plan">
+              <ul className="list-decimal">
+                {activity.response.thoughts.plan
+                  .split("\n")
+                  .map((s) => s.replaceAll("- ", ""))
+                  .map((s) => (
+                    <li>{s}</li>
+                  ))}
+              </ul>
+            </InfoRow>
+          )}
+        </dl>
+      </div>
+    </ActivityBase>
+  );
+}
+interface ChatCommandActivityExecutedProps {
+  activity: ChatCommandExecutedActivity;
+}
+function ChatCommandExecutedActivity({
+  activity,
+}: ChatCommandActivityExecutedProps) {
+  return (
+    <ActivityBase activityText="🖥️">
+      <div className="border-t border-gray-200 px-4 py-5 sm:p-0">
+        <dl className="sm:divide-y sm:divide-gray-200">
+          <InfoRow fieldName="Execution response">
+            {activity.executionResponse.split("\n").map((s) => (
+              <p>{s}</p>
+            ))}
+          </InfoRow>
+        </dl>
+      </div>
+    </ActivityBase>
+  );
+}
+
+function Activity({ activity }: { activity: Activity }) {
+  if (activity.type === "chat:command") {
+    return <ChatCommandActivity activity={activity} />;
+  } else if (activity.type === "chat:command:executed") {
+    return <ChatCommandExecutedActivity activity={activity} />;
+  } else if (activity.type === "app:ask_user") {
+    return <>{"Ask user"}</>;
+  } else {
+    return assertNever(activity);
+  }
 }
 
 interface ActivityFeedProps {
@@ -178,11 +291,7 @@ function ActivityFeed({ activities }: ActivityFeedProps) {
                 />
               ) : null}
               <div className="relative flex items-start space-x-3">
-                {activityItem.type !== "app:ask_user" ? (
-                  <ChatActivity activity={activityItem} />
-                ) : (
-                  "Ask user"
-                )}
+                <Activity key={activityItem.id} activity={activityItem} />
               </div>
             </div>
           </li>
@@ -191,3 +300,5 @@ function ActivityFeed({ activities }: ActivityFeedProps) {
     </div>
   );
 }
+
+const generateID = (): string => Math.random().toString(36).slice(2, 11);

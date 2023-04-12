@@ -1,6 +1,20 @@
 import { callAIFunction } from "./llmUtils";
 import { Config } from "./config";
 
+export interface AIResponseSchema {
+  command: {
+    name: string;
+    args: {[key: string]: string};
+  },
+  thoughts: {
+    text: string;
+    reasoning: string;
+    plan: string;
+    criticism: string;
+    speak: string;
+  }
+}
+
 export async function fixAndParseJson(
   jsonStr: string,
   tryToFixWithGpt: boolean = true
@@ -25,7 +39,7 @@ export async function fixAndParseJson(
     `;
 
   try {
-    return JSON.parse(jsonStr.replaceAll('\n', ''));
+    return JSON.parse(jsonStr.replaceAll('\n', '\\n'));
   } catch (e) {
     try {
       const braceIndex = jsonStr.indexOf("{");
