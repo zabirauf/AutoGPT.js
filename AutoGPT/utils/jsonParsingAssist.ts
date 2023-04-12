@@ -25,7 +25,7 @@ export async function fixAndParseJson(
     `;
 
   try {
-    return JSON.parse(jsonStr);
+    return JSON.parse(jsonStr.replaceAll('\n', ''));
   } catch (e) {
     try {
       const braceIndex = jsonStr.indexOf("{");

@@ -2,7 +2,7 @@
   "exclude": ["./cypress", "./cypress.config.ts"],
   "include": ["remix.env.d.ts", "**/*.ts", "**/*.tsx"],
   "compilerOptions": {
-    "lib": ["DOM", "DOM.Iterable", "ES2019"],
+    "lib": ["DOM", "DOM.Iterable", "ES2019", "ES2021.String"],
     "types": ["vitest/globals", "@types/wicg-file-system-access"],
     "isolatedModules": true,
     "esModuleInterop": true,

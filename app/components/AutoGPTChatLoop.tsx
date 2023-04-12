@@ -6,6 +6,8 @@ import { chatWithAI } from "AutoGPT/utils/chat";
 import { generatePrompt } from "AutoGPT/utils/prompt";
 import { permanentMemory } from "AutoGPT/commandPlugins/MemoryCommandPlugins";
 import { executeCommand, getCommand } from "AutoGPT/commandPlugins/index";
+import { PauseButton, ResumeButton } from "./Buttons";
+import { useCallback } from "react";
 
 const USER_INPUT =
   "Determine which next command to use, and respond using the format specified above:";
@@ -16,27 +18,44 @@ export function AutoGPTChatLoop() {
   } = useAIState();
 
   const fullMessageHistory = useRef<LLMMessage[]>([]);
-  const [currMessageIndex, setCurrMessageIndex] = useState<number>(0);
-
-  const activities = fullMessageHistory.current.map((message, index) =>
-    convertMessageToActivity(index, message)
-  );
-
   const userInput = useRef<string>(USER_INPUT);
   const isChatInProgress = useRef<boolean>(false);
+  const prevMessageIndexRan = useRef<number>(-1); // Should be different from currMessageIndex
+
+  const [currMessageIndex, setCurrMessageIndex] = useState<number>(0);
+  const [activities, setActivities] = useState<Activity[]>([]);
+  const [isPaused, setIsPaused] = useState<boolean>(false);
+
+  const togglePause = useCallback(() => {
+    // Toggle paused
+    setIsPaused(!isPaused);
+
+    if (!isPaused) {
+      // If we need to run again, increase message index so chat gets triggered again
+      setCurrMessageIndex(currMessageIndex + 1);
+    }
+  }, [isPaused, currMessageIndex]);
 
   useEffect(() => {
-    if (isChatInProgress.current) {
-      // Already chat in progress
+    if (isChatInProgress.current || prevMessageIndexRan.current === currMessageIndex || isPaused) {
+      // Already chat in progress or some other state changed, where we shouldn't run
       return;
     }
+    const appendToFullMessageHistory = (messages: LLMMessage[]) => {
+      fullMessageHistory.current.push(...messages);
+      setActivities(
+        fullMessageHistory.current.map((msg, index) =>
+          convertMessageToActivity(index, msg)
+        )
+      );
+    };
 
     isChatInProgress.current = true;
+    prevMessageIndexRan.current = currMessageIndex;
     chatWithAI({
       prompt: generatePrompt(name, description, goals),
       fullMessageHistory: fullMessageHistory.current,
-      appendToFullMessageHistory: (messages) =>
-        fullMessageHistory.current.push(...messages),
+      appendToFullMessageHistory,
       permanentMemory,
       tokenLimit: 4000,
       userInput: userInput.current,
@@ -63,15 +82,23 @@ export function AutoGPTChatLoop() {
         } else {
           result = `Command ${commandName} threw the following error: ${args}`;
         }
-        fullMessageHistory.current.push({ role: "system", content: result });
+        appendToFullMessageHistory([{ role: "system", content: result }]);
         setCurrMessageIndex(currMessageIndex + 1);
       })
       .finally(() => {
         isChatInProgress.current = false;
       });
-  }, [currMessageIndex]);
+  }, [currMessageIndex, isPaused]);
 
-  return <ActivityFeed activities={activities} />;
+  return (
+    <>
+      <ActivityFeed activities={activities} />
+      <div className="w-full flex justify-center align-middle mt-8">
+        {!isPaused && <PauseButton onClick={togglePause} />}
+        {isPaused && <ResumeButton onClick={togglePause} />}
+      </div>
+    </>
+  );
 }
 
 function convertMessageToActivity(

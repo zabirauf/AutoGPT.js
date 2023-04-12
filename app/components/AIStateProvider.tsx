@@ -9,28 +9,44 @@ interface AIState {
   aiInfo: AIInfoState;
 }
 
-const DEFAULT_AI_STATE = Object.freeze<AIState>({
-  setup: {
-    stage: "not_init",
-  },
-  aiInfo: {
-    name: "Entrepreneur-GPT",
-    description:
-      "an AI designed to autonomously develop and run businesses with the sole goal of increasing your net worth.",
-    goals: [
-      "Increase net worth",
-      "Grow Twitter Account",
-      "Develop and manage multiple businesses autonomously",
-    ],
-  },
-});
+const AI_INFO_STATE_KEY = "AI_INFO_STATE";
+function getDefaultAIState(): AIState {
+  const DEFAULT_AI_STATE = Object.freeze<AIState>({
+    setup: {
+      stage: "not_init",
+    },
+    aiInfo: {
+      name: "Entrepreneur-GPT",
+      description:
+        "an AI designed to autonomously develop and run businesses with the sole goal of increasing your net worth.",
+      goals: [
+        "Increase net worth",
+        "Grow Twitter Account",
+        "Develop and manage multiple businesses autonomously",
+      ],
+    },
+  });
+
+  if (typeof window === "undefined") {
+    // In case of server, where `window` doesn't exist, we should just return the default state.
+    return DEFAULT_AI_STATE;
+  }
+
+  const savedAIInfoStateStr = window.localStorage.getItem(AI_INFO_STATE_KEY);
+  if (savedAIInfoStateStr) {
+    const savedAIInfoState = JSON.parse(savedAIInfoStateStr) as AIInfoState;
+    return {...DEFAULT_AI_STATE, aiInfo: savedAIInfoState };
+  } else {
+    return DEFAULT_AI_STATE;
+  }
+}
 
 interface AIStateDispatchers {
   setupDispatcher: Dispatch<SetupReducerAction>;
   aiInfoDispatcher: Dispatch<AIInfoReducerAction>;
 }
 
-const AIStateContext = createContext<AIState>({ ...DEFAULT_AI_STATE });
+const AIStateContext = createContext<AIState>({ ...getDefaultAIState()});
 const AIStateDispatcherContext = createContext<AIStateDispatchers>({
   setupDispatcher: () => {},
   aiInfoDispatcher: () => {},
@@ -38,10 +54,10 @@ const AIStateDispatcherContext = createContext<AIStateDispatchers>({
 
 export function AIStateProvider({ children }: PropsWithChildren<{}>) {
   const [setupState, setupDispatcher] = useReducer(setupReducer, {
-    ...DEFAULT_AI_STATE.setup,
+    ...getDefaultAIState().setup,
   });
   const [aiInfoState, aiInfoDispatcher] = useReducer(aiInfoReducer, {
-    ...DEFAULT_AI_STATE.aiInfo,
+    ...getDefaultAIState().aiInfo,
   });
 
   useEffect(() => {
@@ -131,7 +147,12 @@ function aiInfoReducer(
   } else if (action.type === "set_description") {
     return { ...state, description: action.description };
   } else if (action.type === "set_goals") {
-    return { ...state, goals: action.goals };
+    // As setting goals is generally the last stage of AIInfoState
+    // so we'll store it in local storage
+    const newState = { ...state, goals: action.goals };
+    window.localStorage.setItem(AI_INFO_STATE_KEY, JSON.stringify(newState));
+
+    return newState;
   } else {
     return assertNever(action);
   }
