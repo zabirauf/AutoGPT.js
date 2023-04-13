@@ -98,8 +98,8 @@ function ChatCommandCodeActivity({ activity }: ChatCommandCodeActivityProps) {
     <ChatCommandActivity activity={{ ...activity, type: "chat:command" }}>
       {activity.code && (
         <InfoRow fieldName="Code" key="code">
-          <pre className="language-javascript overflow-x-scroll">
-            <code>{activity.code}</code>
+          <pre className="overflow-x-scroll">
+            <code className="language-javascript">{activity.code}</code>
           </pre>
         </InfoRow>
       )}
