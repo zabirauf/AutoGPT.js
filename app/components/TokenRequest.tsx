@@ -14,7 +14,7 @@ export function TokenRequest() {
       // Only go to next stage if there is an API key present
       setupDispatcher("next_stage")
     }
-  }, []);
+  }, [setupDispatcher]);
 
   return (
     <div className="bg-white shadow sm:rounded-lg">
