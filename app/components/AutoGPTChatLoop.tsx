@@ -28,9 +28,17 @@ export function AutoGPTChatLoop() {
     () => setIsTaskCompleted(true)
   );
 
+  const activitiesWithLoading = useMemo(
+    () => [
+      ...activities,
+      ...(isTaskCompleted ? [] : [{ ...DEFAULT_LOADING_ACTIVITY }]),
+    ],
+    [activities, isTaskCompleted]
+  );
+
   return (
     <div>
-      <ActivityFeed activities={activities} />
+      <ActivityFeed activities={activitiesWithLoading} />
       <div className="mt-8 flex w-full justify-center align-middle">
         {!isTaskCompleted && !isPaused && <PauseButton onClick={togglePause} />}
         {!isTaskCompleted && isPaused && <ResumeButton onClick={togglePause} />}
@@ -90,7 +98,7 @@ function ChatCommandCodeActivity({ activity }: ChatCommandCodeActivityProps) {
     <ChatCommandActivity activity={{ ...activity, type: "chat:command" }}>
       {activity.code && (
         <InfoRow fieldName="Code" key="code">
-          <pre className='overflow-x-scroll'>
+          <pre className="language-javascript overflow-x-scroll">
             <code>{activity.code}</code>
           </pre>
         </InfoRow>
@@ -205,14 +213,10 @@ interface ActivityFeedProps {
   activities: Activity[];
 }
 function ActivityFeed({ activities }: ActivityFeedProps) {
-  const activitiesWithLoading = useMemo(
-    () => [...activities, { ...DEFAULT_LOADING_ACTIVITY }],
-    [activities]
-  );
   return (
     <div className="flow-root">
       <ul role="list" className="-mb-8">
-        {activitiesWithLoading.map((activityItem, activityItemIdx) => (
+        {activities.map((activityItem, activityItemIdx) => (
           <li key={activityItem.id}>
             <div className="relative pb-8">
               {activityItemIdx !== activities.length - 1 ? (
