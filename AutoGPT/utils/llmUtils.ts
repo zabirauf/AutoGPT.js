@@ -1,5 +1,5 @@
-import { getAPIKey } from "./apiKey";
 import { Config } from './config';
+import { getAPIKey } from './apiKey';
 
 export type LLMMessage =
   | { role: "system"; content: string; }
@@ -61,7 +61,7 @@ export async function callAIFunction({
     description,
     model = Config.smart_llm_model,
 }: CallAIFunctionArgs): Promise<string> {
-    args = args.map(arg => (arg !== null ? String(arg) : 'None'));
+    args = args.map(arg => (arg !== null && arg !== undefined ? `${String(arg)}` : 'None'));
     const argsString = args.join(', ');
 
     const messages: LLMMessage[] = [

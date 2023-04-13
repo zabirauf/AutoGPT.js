@@ -1,10 +1,10 @@
-import wasmBinary from "@dqbd/tiktoken/tiktoken_bg.wasm";
-import { createRoot, hydrateRoot } from "react-dom/client";
-import { init } from "@dqbd/tiktoken/init";
-import { RemixBrowser } from "@remix-run/react";
-import { startTransition, StrictMode } from "react";
-import { initFileHandlerOperations } from "AutoGPT/commandPlugins/FileOperationCommandPlugins";
-import { AskFilePermission } from "./components/AskFilePermission";
+import wasmBinary from '@dqbd/tiktoken/tiktoken_bg.wasm';
+import { AskFilePermission } from './components/AskFilePermission';
+import { createRoot, hydrateRoot } from 'react-dom/client';
+import { init } from '@dqbd/tiktoken/init';
+import { initFileHandlerOperations } from 'AutoGPT/commandPlugins/FileOperationCommandPlugins';
+import { RemixBrowser } from '@remix-run/react';
+import { startTransition, StrictMode } from 'react';
 /**
  * By default, Remix will handle hydrating your app on the client for you.
  * You are free to delete this file if you'd like to, but if you ever want it revealed again, you can run `npx remix reveal` ✨
@@ -34,7 +34,13 @@ async function getDirectoryHandle(): Promise<FileSystemDirectoryHandle | null> {
     const root = createRoot(containerElement);
     let directoryHandle: FileSystemDirectoryHandle | null = null;
     const onUserApprovedPermission = async () => {
-      directoryHandle = await window.showDirectoryPicker();
+      if (!!window.showDirectoryPicker) {
+        directoryHandle = await window.showDirectoryPicker();
+      } else {
+        // If the user directory picker is not available then fallback to using
+        // origin private file system
+        directoryHandle = await window.navigator.storage.getDirectory();
+      }
     };
     const onDone = () => {
       resolve(directoryHandle);

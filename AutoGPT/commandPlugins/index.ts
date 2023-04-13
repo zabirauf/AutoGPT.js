@@ -1,43 +1,53 @@
-import AgentCommandPlugins from "./AgentCommandPlugins";
-import MemoryCommandPlugins from "./MemoryCommandPlugins";
-import FileOperationCommandPlugins from "./FileOperationCommandPlugins";
-import TaskCompleteCommandPlugins from "./TaskCompleteCommandPlugins";
-import { fixAndParseJson } from "../utils/jsonParsingAssist";
-import CodeGenerationCommandPlugin from "./CodeGenerationCommandPlugin";
+import AgentCommandPlugins from './AgentCommandPlugins';
+import CodeGenerationCommandPlugin from './CodeGenerationCommandPlugin';
+import FileOperationCommandPlugins from './FileOperationCommandPlugins';
+import MemoryCommandPlugins from './MemoryCommandPlugins';
+import TaskCompleteCommandPlugins from './TaskCompleteCommandPlugins';
+import { fixAndParseJson } from '../utils/jsonParsingAssist';
 
 export const CommandPlugins = [
   ...MemoryCommandPlugins,
   ...AgentCommandPlugins,
   ...FileOperationCommandPlugins,
   ...TaskCompleteCommandPlugins,
-  ...CodeGenerationCommandPlugin
+  ...CodeGenerationCommandPlugin,
 ];
 
 export async function getCommand(
   response: string
-): Promise<[string, string | { [key: string]: string }]> {
+): Promise<{
+  commandName: string;
+  argumentsObj: string | { [key: string]: string };
+  jsonResponse?: any;
+}> {
   try {
     const responseJson = (await fixAndParseJson(response)) as any;
 
     if (!responseJson["command"]) {
-      return ["Error:", "Missing 'command' object in JSON"];
+      return {
+        commandName: "Error:",
+        argumentsObj: "Missing 'command' object in JSON",
+      };
     }
 
     const command = responseJson["command"] as any;
 
     if (!command["name"]) {
-      return ["Error:", "Missing 'name' field in 'command' object"];
+      return {
+        commandName: "Error:",
+        argumentsObj: "Missing 'name' field in 'command' object",
+      };
     }
 
     const commandName = command["name"] as string;
     const argumentsObj: { [key: string]: string } = command["args"] || {};
 
-    return [commandName, argumentsObj];
+    return { commandName, argumentsObj, jsonResponse: responseJson };
   } catch (e) {
     if (e instanceof SyntaxError) {
-      return ["Error:", "Invalid JSON"];
+      return { commandName: "Error:", argumentsObj: "Invalid JSON" };
     }
-    return ["Error:", String(e)];
+    return { commandName: "Error:", argumentsObj: String(e) };
   }
 }
 
