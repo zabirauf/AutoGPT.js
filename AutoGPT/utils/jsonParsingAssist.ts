@@ -1,5 +1,5 @@
-import { callAIFunction } from "./llmUtils";
-import { Config } from "./config";
+import { callAIFunction } from './llmUtils';
+import { Config } from './config';
 
 export interface AIResponseSchema {
   command: {
@@ -72,7 +72,7 @@ async function fixJson(
   debug = false
 ): Promise<string | "failed"> {
   const functionString =
-    "function fix_json(json_str: string, schema:string): string {";
+    "function fixJson(json_str: string, schema:string): string {";
   const args = [jsonStr, schema];
   const description = `Fixes the provided JSON string to make it parseable and fully complient with the provided schema.\n If an object or field specifed in the schema isn't contained within the correct JSON, it is ommited.\n This function is brilliant at guessing when the format is incorrect.`;
 
