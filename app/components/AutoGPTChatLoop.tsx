@@ -90,12 +90,12 @@ function InfoRow(props: InfoRowProps) {
 interface ChatCommandCodeActivityProps {
   activity: ChatCommandCodeActivity;
 }
-function ChatCommandCodeActivity({ activity }: ChatCommandCodeActivityProps) {
+function ChatCommandCodeActivityComponent({ activity }: ChatCommandCodeActivityProps) {
   useEffect(() => {
     hljs.highlightAll();
   });
   return (
-    <ChatCommandActivity activity={{ ...activity, type: "chat:command" }}>
+    <ChatCommandActivityComponent activity={{ ...activity, type: "chat:command" }}>
       {activity.code && (
         <InfoRow fieldName="Code" key="code">
           <pre className="overflow-x-scroll">
@@ -103,14 +103,14 @@ function ChatCommandCodeActivity({ activity }: ChatCommandCodeActivityProps) {
           </pre>
         </InfoRow>
       )}
-    </ChatCommandActivity>
+    </ChatCommandActivityComponent>
   );
 }
 
 interface ChatCommandActivityProps extends PropsWithChildren {
   activity: ChatCommandActivity;
 }
-function ChatCommandActivity({ activity, children }: ChatCommandActivityProps) {
+function ChatCommandActivityComponent({ activity, children }: ChatCommandActivityProps) {
   return (
     <ActivityBase activityText="🤖">
       <div className="border-t border-gray-200 px-4 py-5 sm:p-0">
@@ -160,7 +160,7 @@ function ChatCommandActivity({ activity, children }: ChatCommandActivityProps) {
 interface ChatCommandActivityExecutedProps {
   activity: ChatCommandExecutedActivity;
 }
-function ChatCommandExecutedActivity({
+function ChatCommandExecutedActivityComponent({
   activity,
 }: ChatCommandActivityExecutedProps) {
   return (
@@ -178,7 +178,7 @@ function ChatCommandExecutedActivity({
   );
 }
 
-function LoadingActivity() {
+function LoadingActivityComponent() {
   return (
     <ActivityBase activityText="">
       <div className="w-96">
@@ -188,17 +188,17 @@ function LoadingActivity() {
   );
 }
 
-function Activity({ activity }: { activity: Activity }) {
+function ActivityComponent({ activity }: { activity: Activity }) {
   if (activity.type === "chat:command") {
-    return <ChatCommandActivity activity={activity} />;
+    return <ChatCommandActivityComponent activity={activity} />;
   } else if (activity.type === "chat:command:code") {
-    return <ChatCommandCodeActivity activity={activity} />;
+    return <ChatCommandCodeActivityComponent activity={activity} />;
   } else if (activity.type === "chat:command:executed") {
-    return <ChatCommandExecutedActivity activity={activity} />;
+    return <ChatCommandExecutedActivityComponent activity={activity} />;
   } else if (activity.type === "app:ask_user") {
     return <>{"Ask user"}</>;
   } else if (activity.type === "app:loading") {
-    return <LoadingActivity />;
+    return <LoadingActivityComponent />;
   } else {
     return assertNever(activity);
   }
@@ -226,7 +226,7 @@ function ActivityFeed({ activities }: ActivityFeedProps) {
                 />
               ) : null}
               <div className="relative flex items-start space-x-3">
-                <Activity key={activityItem.id} activity={activityItem} />
+                <ActivityComponent key={activityItem.id} activity={activityItem} />
               </div>
             </div>
           </li>
