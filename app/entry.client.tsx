@@ -2,7 +2,8 @@ import wasmBinary from '@dqbd/tiktoken/tiktoken_bg.wasm';
 import { AskFilePermission } from './components/AskFilePermission';
 import { createRoot, hydrateRoot } from 'react-dom/client';
 import { init } from '@dqbd/tiktoken/init';
-import { initFileHandlerOperations } from 'AutoGPT/commandPlugins/FileOperationCommandPlugins';
+import { initBrowserCommandPlugins } from 'AutoGPT/commandPlugins/BrowserCommandPlugins';
+import { initFileOperationCommandPlugins } from 'AutoGPT/commandPlugins/FileOperationCommandPlugins';
 import { RemixBrowser } from '@remix-run/react';
 import { startTransition, StrictMode } from 'react';
 /**
@@ -14,9 +15,10 @@ import { startTransition, StrictMode } from 'react';
 init((imports) =>
   WebAssembly.instantiateStreaming(fetch(wasmBinary as any), imports)
 ).then(() => {
-  initFileHandlerOperations({
+  initFileOperationCommandPlugins({
     getDirectoryHandle,
   });
+  initBrowserCommandPlugins({ callProxy });
   startTransition(() => {
     hydrateRoot(
       document,
@@ -53,4 +55,30 @@ async function getDirectoryHandle(): Promise<FileSystemDirectoryHandle | null> {
       />
     );
   });
+}
+
+async function callProxy(
+  url: string
+): Promise<
+  { status: "ok"; text: string } | { status: "error"; error: string }
+> {
+  const proxyAPIUrl = new URL(
+    "/proxy",
+    `${window.location.protocol}//${window.location.host}`
+  );
+  proxyAPIUrl.searchParams.set("url", url);
+  try {
+    const response = await fetch(proxyAPIUrl.toString(), { method: "GET" });
+    if (response.ok) {
+      return { status: "ok", text: await response.text() };
+    } else if (response.status === 520) {
+      const jsonBody = await response.json();
+      return { status: "error", error: `Error: HTTP ${jsonBody.status} error` };
+    } else {
+      return { status: "error", error: "Error: unable to visit website" };
+    }
+  } catch (error) {
+    console.log("Error calling proxy", error);
+    return { status: "error", error: "Error: unable to visit website" };
+  }
 }

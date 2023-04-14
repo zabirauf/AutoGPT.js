@@ -1,15 +1,12 @@
 import { chatWithAI } from 'AutoGPT/utils/chat';
 import { executeCommand, getCommand } from 'AutoGPT/commandPlugins/index';
 import { generatePrompt } from 'AutoGPT/utils/prompt';
-import { LLMMessage } from 'AutoGPT/utils/llmUtils';
 import { permanentMemory } from 'AutoGPT/commandPlugins/MemoryCommandPlugins';
 import { useCallback } from 'react';
 import { useEffect, useRef, useState } from 'react';
+import type { LLMMessage, LLMModel } from "AutoGPT/utils/llmUtils";
 import { useAIState } from "~/components/AIStateProvider";
-import {
-  AIResponseSchema,
-  fixAndParseJson,
-} from "AutoGPT/utils/jsonParsingAssist";
+import type { AIResponseSchema } from "AutoGPT/utils/jsonParsingAssist";
 import { generateID } from "~/utils/generateID";
 import { Activity } from "~/types/Activity";
 
@@ -21,7 +18,7 @@ export function useAutoGPTChat(
   onTaskCompleted: () => void
 ) {
   const {
-    aiInfo: { name, description, goals },
+    aiInfo: { name, description, goals, model },
   } = useAIState();
 
   const fullMessageHistory = useRef<LLMMessage[]>([]);
@@ -61,6 +58,7 @@ export function useAutoGPTChat(
       appendToFullMessageHistory,
       permanentMemory,
       tokenLimit: 4000,
+      model: model as LLMModel,
       userInput: userInput.current,
       debug: true,
     })

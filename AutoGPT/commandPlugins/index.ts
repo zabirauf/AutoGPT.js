@@ -1,4 +1,5 @@
 import AgentCommandPlugins from './AgentCommandPlugins';
+import BrowserCommandPlugins from './BrowserCommandPlugins';
 import CodeGenerationCommandPlugin from './CodeGenerationCommandPlugin';
 import FileOperationCommandPlugins from './FileOperationCommandPlugins';
 import MemoryCommandPlugins from './MemoryCommandPlugins';
@@ -11,6 +12,7 @@ export const CommandPlugins = [
   ...FileOperationCommandPlugins,
   ...TaskCompleteCommandPlugins,
   ...CodeGenerationCommandPlugin,
+  ...BrowserCommandPlugins
 ];
 
 export async function getCommand(

@@ -1,6 +1,6 @@
-import { callLLMChatCompletion, LLMMessage } from "./llmUtils";
-import { Config } from "./config";
-import { countMessageTokens } from "./tokenCounter";
+import { callLLMChatCompletion, LLMMessage, LLMModel } from './llmUtils';
+import { Config } from './config';
+import { countMessageTokens } from './tokenCounter';
 
 interface ChatWithAiArgs {
   prompt: string;
@@ -9,6 +9,7 @@ interface ChatWithAiArgs {
   appendToFullMessageHistory: (messages: LLMMessage[]) => void;
   permanentMemory: string[];
   tokenLimit: number;
+  model?: LLMModel;
   debug?: boolean;
 }
 
@@ -19,10 +20,11 @@ export async function chatWithAI({
   appendToFullMessageHistory,
   permanentMemory,
   tokenLimit,
+  model,
   debug = false,
 }: ChatWithAiArgs): Promise<string> {
   try {
-    const model = Config.fast_llm_model;
+    model = model ?? Config.smart_llm_model;
     const sendTokenLimit = tokenLimit - 1000;
 
     const currentContext: LLMMessage[] = [
