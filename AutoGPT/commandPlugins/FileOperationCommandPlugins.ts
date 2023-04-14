@@ -1,9 +1,9 @@
-import { CommandPlugin } from "./CommandPlugin";
+import { CommandPlugin } from './CommandPlugin';
 
 let directoryHandle: FileSystemDirectoryHandle | null = null;
 let getDirectoryHandleFn: () => Promise<FileSystemDirectoryHandle | null>;
 
-export function initFileHandlerOperations({
+export function initFileOperationCommandPlugins({
   getDirectoryHandle: _getDirectoryHandle,
 }: {
   getDirectoryHandle: typeof getDirectoryHandleFn;

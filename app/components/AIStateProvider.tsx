@@ -1,5 +1,11 @@
-import { getAPIKey } from "AutoGPT/utils/apiKey";
-import { useReducer, createContext, useContext, useEffect } from "react";
+import { Config } from 'AutoGPT/utils/config';
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useReducer
+  } from 'react';
+import { getAPIKey } from 'AutoGPT/utils/apiKey';
 import type { Dispatch, PropsWithChildren } from "react";
 import { assertNever } from "~/utils/asserts";
 
@@ -24,6 +30,7 @@ function getDefaultAIState(): AIState {
         "Grow Twitter Account",
         "Develop and manage multiple businesses autonomously",
       ],
+      model: Config.fast_llm_model,
     },
   });
 
@@ -35,7 +42,7 @@ function getDefaultAIState(): AIState {
   const savedAIInfoStateStr = window.localStorage.getItem(AI_INFO_STATE_KEY);
   if (savedAIInfoStateStr) {
     const savedAIInfoState = JSON.parse(savedAIInfoStateStr) as AIInfoState;
-    return {...DEFAULT_AI_STATE, aiInfo: savedAIInfoState };
+    return { ...DEFAULT_AI_STATE, aiInfo: savedAIInfoState };
   } else {
     return DEFAULT_AI_STATE;
   }
@@ -46,7 +53,7 @@ interface AIStateDispatchers {
   aiInfoDispatcher: Dispatch<AIInfoReducerAction>;
 }
 
-const AIStateContext = createContext<AIState>({ ...getDefaultAIState()});
+const AIStateContext = createContext<AIState>({ ...getDefaultAIState() });
 const AIStateDispatcherContext = createContext<AIStateDispatchers>({
   setupDispatcher: () => {},
   aiInfoDispatcher: () => {},
@@ -131,11 +138,13 @@ interface AIInfoState {
   name: string;
   description: string;
   goals: string[];
+  model: string;
 }
 
 type AIInfoReducerAction =
   | { type: "set_name"; name: string }
   | { type: "set_description"; description: string }
+  | { type: "set_model"; model: string }
   | { type: "set_goals"; goals: string[] };
 
 function aiInfoReducer(
@@ -146,6 +155,8 @@ function aiInfoReducer(
     return { ...state, name: action.name };
   } else if (action.type === "set_description") {
     return { ...state, description: action.description };
+  } else if (action.type === "set_model") {
+    return { ...state, model: action.model };
   } else if (action.type === "set_goals") {
     // As setting goals is generally the last stage of AIInfoState
     // so we'll store it in local storage
