@@ -1,6 +1,12 @@
-import { Fragment, useCallback, useRef, useState } from "react";
-import { Dialog, Transition } from "@headlessui/react";
-import { FolderIcon } from "@heroicons/react/24/outline";
+import GitHubMarkSvg from './github-mark.svg';
+import { Dialog, Transition } from '@headlessui/react';
+import { FolderIcon } from '@heroicons/react/24/outline';
+import {
+  Fragment,
+  useCallback,
+  useRef,
+  useState
+  } from 'react';
 
 export interface AskFilePermissionProps {
   onUserApprovedPermission: () => Promise<void>;

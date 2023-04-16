@@ -157,7 +157,7 @@ export function AIGoalsForm() {
               defaultValue={Config.smart_llm_model}
               ref={modelSelectorRef}
             >
-              <option value={Config.fast_llm_model}>GPT 3.5</option>
+              <option value={Config.fast_llm_model}>GPT 3.5-turbo</option>
               <option value={Config.smart_llm_model}>GPT 4</option>
             </select>
           </div>
