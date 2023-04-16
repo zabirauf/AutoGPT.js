@@ -1,6 +1,10 @@
 # AutoGPT.js
 
+Visit [AutoGPTjs.com](https://autogptjs.com)
+
 The Auto-GPT [commit: 4839a0d89b2ac6569ab0eeb07e72506c97385b47] inspired browser version to make it more accessible for people to run.
+
+![Website snapshot](docs/website-snapshot.png);
 
 ## Development
 
