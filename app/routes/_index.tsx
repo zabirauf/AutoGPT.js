@@ -1,4 +1,4 @@
-import { TokenRequest } from "~/components/TokenRequest";
+import { HowToUseWithTokenRequest } from "~/components/HowToUseWithTokenRequest";
 import { AIGoalsForm, AIInfoForm } from "~/components/AIStarterForms";
 import { LoadingSpinner } from "~/components/LoadingSpinner";
 import { AIStateProvider, useAIState } from "~/components/AIStateProvider";
@@ -27,7 +27,7 @@ function AISetup() {
     <>
       {setup.stage === "not_init" && <LoadingSpinner />}
       {setup.stage === "get_token" && (
-        <TokenRequest />
+        <HowToUseWithTokenRequest />
       )}
       {setup.stage === "get_ai_info" && <AIInfoForm />}
       {setup.stage === "get_ai_goals" && <AIGoalsForm />}
