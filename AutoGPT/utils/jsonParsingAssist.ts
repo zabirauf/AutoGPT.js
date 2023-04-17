@@ -4,15 +4,15 @@ import { Config } from './config';
 export interface AIResponseSchema {
   command: {
     name: string;
-    args: {[key: string]: string};
-  },
+    args: { [key: string]: string };
+  };
   thoughts: {
     text: string;
     reasoning: string;
     plan: string;
     criticism: string;
     speak: string;
-  }
+  };
 }
 
 export async function fixAndParseJson(
@@ -39,28 +39,37 @@ export async function fixAndParseJson(
     `;
 
   try {
-    return JSON.parse(jsonStr.replaceAll('\n', '\\n'));
+    return JSON.parse(jsonStr.replaceAll("\n", "\\n"));
   } catch (e) {
     try {
-      const braceIndex = jsonStr.indexOf("{");
-      jsonStr = jsonStr.slice(braceIndex);
-      const lastBraceIndex = jsonStr.lastIndexOf("}");
-      jsonStr = jsonStr.slice(0, lastBraceIndex + 1);
-      return JSON.parse(jsonStr);
+      // Escaping newlines in the string field values
+      const regex = /"(?:[^"\\]|\\[^n])*?"/g;
+      const escapedString = jsonStr.replace(regex, (match) =>
+        match.replace(/\n/g, "\\\\n")
+      );
+      return JSON.parse(escapedString);
     } catch (e) {
-      if (tryToFixWithGpt) {
-        console.warn(
-          "Warning: Failed to parse AI output, attempting to fix.\n If you see this warning frequently, it's likely that your prompt is confusing the AI. Try changing it up slightly."
-        );
-        const aiFixedJson = await fixJson(jsonStr, jsonSchema, false);
-        if (aiFixedJson !== "failed") {
-          return JSON.parse(aiFixedJson);
+      try {
+        const braceIndex = jsonStr.indexOf("{");
+        jsonStr = jsonStr.slice(braceIndex);
+        const lastBraceIndex = jsonStr.lastIndexOf("}");
+        jsonStr = jsonStr.slice(0, lastBraceIndex + 1);
+        return JSON.parse(jsonStr);
+      } catch (e) {
+        if (tryToFixWithGpt) {
+          console.warn(
+            "Warning: Failed to parse AI output, attempting to fix.\n If you see this warning frequently, it's likely that your prompt is confusing the AI. Try changing it up slightly."
+          );
+          const aiFixedJson = await fixJson(jsonStr, jsonSchema, false);
+          if (aiFixedJson !== "failed") {
+            return JSON.parse(aiFixedJson);
+          } else {
+            console.error("Failed to fix ai output, telling the AI.");
+            return jsonStr;
+          }
         } else {
-          console.error("Failed to fix ai output, telling the AI.");
-          return jsonStr;
+          throw e;
         }
-      } else {
-        throw e;
       }
     }
   }

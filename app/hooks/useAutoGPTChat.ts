@@ -52,6 +52,11 @@ export function useAutoGPTChat(
 
     isChatInProgress.current = true;
     prevMessageIndexRan.current = currMessageIndex;
+    onActivity({
+      type: 'system:info',
+      prompt: 'Generating next command',
+      id: generateID()
+    });
     chatWithAI({
       prompt: generatePrompt(name, description, goals),
       fullMessageHistory: fullMessageHistory.current,
@@ -132,6 +137,11 @@ export function useAutoGPTChat(
           result = `Command ${commandName} returned: ${executedCommandResponse}`;
         } else {
           result = `Command ${commandName} threw the following error: ${args}`;
+          onActivity({
+            type: "chat:command:error",
+            error: result,
+            id: generateID(),
+          });
         }
         appendToFullMessageHistory([{ role: "system", content: result }]);
 

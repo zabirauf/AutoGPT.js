@@ -13,8 +13,10 @@ import type {
   Activity,
   ChatCommandActivity,
   ChatCommandCodeActivity,
+  ChatCommandErrorActivity,
   ChatCommandExecutedActivity,
   LoadingActivity,
+  SystemInfoActivity,
 } from "~/types/Activity";
 import { useAutoGPTChat } from "~/hooks/useAutoGPTChat";
 import { generateID } from "~/utils/generateID";
@@ -178,6 +180,48 @@ function ChatCommandExecutedActivityComponent({
   );
 }
 
+interface ChatCommandErrorActivityProps{
+  activity: ChatCommandErrorActivity;
+}
+function ChatCommandErrorActivityComponent({
+  activity,
+}: ChatCommandErrorActivityProps) {
+  return (
+    <ActivityBase activityText="🤖">
+      <div className="border-t border-gray-200 px-4 py-5 sm:p-0">
+        <dl className="sm:divide-y sm:divide-gray-200">
+          <InfoRow fieldName="Error">
+              <p className='text-red-500'>{activity.error}</p>
+          </InfoRow>
+        </dl>
+      </div>
+    </ActivityBase>
+  );
+}
+
+
+
+interface SystemInfoActivityProps {
+  activity: SystemInfoActivity;
+}
+function SystemInfoActivityComponent({
+  activity,
+}: SystemInfoActivityProps) {
+  return (
+    <ActivityBase activityText="ℹ️">
+      <div className="border-t border-gray-200 px-4 py-5 sm:p-0">
+        <dl className="sm:divide-y sm:divide-gray-200">
+          <InfoRow fieldName="Info">
+              <p>{activity.prompt}</p>
+          </InfoRow>
+        </dl>
+      </div>
+    </ActivityBase>
+  );
+}
+
+
+
 function LoadingActivityComponent() {
   return (
     <ActivityBase activityText="">
@@ -189,12 +233,16 @@ function LoadingActivityComponent() {
 }
 
 function ActivityComponent({ activity }: { activity: Activity }) {
-  if (activity.type === "chat:command") {
+  if (activity.type === "system:info") {
+    return <SystemInfoActivityComponent activity={activity} />;
+  } else if (activity.type === "chat:command") {
     return <ChatCommandActivityComponent activity={activity} />;
   } else if (activity.type === "chat:command:code") {
     return <ChatCommandCodeActivityComponent activity={activity} />;
   } else if (activity.type === "chat:command:executed") {
     return <ChatCommandExecutedActivityComponent activity={activity} />;
+  } else if (activity.type === "chat:command:error") {
+    return <ChatCommandErrorActivityComponent activity={activity} />;
   } else if (activity.type === "app:ask_user") {
     return <>{"Ask user"}</>;
   } else if (activity.type === "app:loading") {
