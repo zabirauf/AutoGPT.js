@@ -8,16 +8,14 @@ import { fixAndParseJson } from '../utils/jsonParsingAssist';
 
 export const CommandPlugins = [
   ...MemoryCommandPlugins,
-  ...AgentCommandPlugins,
+  ...BrowserCommandPlugins,
   ...FileOperationCommandPlugins,
-  ...TaskCompleteCommandPlugins,
+  ...AgentCommandPlugins,
   ...CodeGenerationCommandPlugin,
-  ...BrowserCommandPlugins
+  ...TaskCompleteCommandPlugins,
 ];
 
-export async function getCommand(
-  response: string
-): Promise<{
+export async function getCommand(response: string): Promise<{
   commandName: string;
   argumentsObj: string | { [key: string]: string };
   jsonResponse?: any;

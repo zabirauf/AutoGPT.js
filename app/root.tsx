@@ -1,6 +1,6 @@
 import tailwindStylesheetUrl from './styles/tailwind.css';
 import { Header } from './components/Header';
-import type { LinksFunction } from "@remix-run/node";
+import type { LinksFunction, V2_MetaFunction } from "@remix-run/node";
 import {
   Links,
   LiveReload,
@@ -13,6 +13,25 @@ import {
 export const links: LinksFunction = () => {
   return [{ rel: "stylesheet", href: tailwindStylesheetUrl }];
 };
+
+export const meta: V2_MetaFunction = () => {
+  return [
+    { title: "AutoGPT in Browser" },
+    {
+      property: "og:title",
+      content: "AutoGPT running in Browser",
+    },
+    {
+      name: "description",
+      content: "It’s an autonomous AI that can help you achieve any goal you can imagine. It generates tasks, executes them, and learns from the outcomes for optimal results.",
+    },
+    {
+      property: "og:image",
+      content: `https://autogptjs.com/website-snapshot.png`
+    }
+  ];
+};
+
 
 export default function App() {
   return (

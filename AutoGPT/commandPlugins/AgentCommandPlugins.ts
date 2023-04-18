@@ -1,6 +1,10 @@
-import { LLMMessage, LLMModel, callLLMChatCompletion } from "AutoGPT/utils/llmUtils";
-import { Config } from "AutoGPT/utils/config";
-import { CommandPlugin } from "./CommandPlugin";
+import { CommandPlugin } from './CommandPlugin';
+import { Config } from 'AutoGPT/utils/config';
+import {
+  callLLMChatCompletion,
+  LLMMessage,
+  LLMModel,
+} from "AutoGPT/utils/llmUtils";
 
 interface Agent {
   name: string;
@@ -10,20 +14,26 @@ interface Agent {
 }
 
 let nextkey = 0;
-const agents: {[key: string]: Agent} = {};
+const agents: { [key: string]: Agent } = {};
 
 async function startAgent(
   name: string,
   task: string,
   prompt: string,
+  context: string,
   model: LLMModel = Config.fast_llm_model
 ) {
-    const firstMessage = `You are ${name}. Respond with: "Acknowledged".`;
-    const { key, agentReply } = await createAgent(name, task, firstMessage, model);
+  const firstMessage = `You are ${name}. Respond with: "Acknowledged".`;
+  const { key, agentReply } = await createAgent(
+    name,
+    task,
+    firstMessage,
+    model
+  );
 
-    const agentResponse = await messageAgent(key, prompt);
+  const agentResponse = await messageAgent(key, prompt, context);
 
-    return `Agent ${name} created with key ${key}. First response: ${agentResponse}`;
+  return `Agent ${name} created with key ${key}. First response: ${agentResponse}`;
 }
 
 async function createAgent(
@@ -54,13 +64,17 @@ async function createAgent(
 
 async function messageAgent(
   key: string,
-  message: string
+  message: string,
+  data: string
 ): Promise<string> {
   if (!agents[key]) {
     return "Invalid key, agent doesn't exist";
   }
   const { messages, model } = agents[key];
-  messages.push({ role: "user", content: message });
+  messages.push({
+    role: "user",
+    content: `|Start of data|\n${data}\n|End of data|\n\n${message}`,
+  });
 
   const agentReply = await callLLMChatCompletion(messages, model);
 
@@ -88,34 +102,39 @@ const AgentCommandPlugins: CommandPlugin[] = [
     arguments: {
       name: "name",
       task: "short_task_desc",
-      prompt: "prompt"
+      prompt: "prompt",
+      data: "data_for_prompt",
     },
-    execute: (args) => startAgent(args["name"], args["task"], args["prompt"])
+    execute: (args) =>
+      startAgent(args["name"], args["task"], args["prompt"], args["data"]),
   },
   {
     command: "message_agent",
     name: "Message GPT Agent",
     arguments: {
       key: "key",
-      message: "message"
+      message: "message",
+      data: "data_for_message",
     },
-    execute: (args) => messageAgent(args["key"], args["message"])
+    execute: (args) =>
+      messageAgent(args["key"], args["message"], args["data"]),
   },
   {
     command: "list_agents",
     name: "List GPT Agents",
     arguments: {},
-    execute: async (args) => JSON.stringify(listAgents())
+    execute: async (args) => JSON.stringify(listAgents()),
   },
   {
     command: "delete_agent",
     name: "Delete GPT Agent",
     arguments: {
-      key: "key"
+      key: "key",
     },
-    execute: async (args) => deleteAgent(args["key"])
+    execute: async (args) =>
+      deleteAgent(args["key"])
         ? `Agent ${args["key"]} deleted.`
-        : `Agent ${args["key"]} does not exist.`
-  }
+        : `Agent ${args["key"]} does not exist.`,
+  },
 ];
 export default AgentCommandPlugins;

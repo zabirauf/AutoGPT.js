@@ -144,6 +144,7 @@ function ChatCommandActivityComponent({ activity, children }: ChatCommandActivit
             <InfoRow fieldName="Plan" key="plan">
               <ul className="list-decimal">
                 {activity.response.thoughts.plan
+                  .replaceAll("\\n","\n")
                   .split("\n")
                   .map((s) => s.replaceAll("- ", ""))
                   .map((s) => (

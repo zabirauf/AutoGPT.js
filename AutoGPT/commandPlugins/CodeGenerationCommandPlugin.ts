@@ -1,5 +1,20 @@
-import { CommandPlugin } from "./CommandPlugin";
-import { callAIFunction } from "../utils/llmUtils";
+import { callAIFunction } from '../utils/llmUtils';
+import { CommandPlugin } from './CommandPlugin';
+
+async function createCode(descriptionOfCode: string): Promise<string> {
+  const functionString = "function createCode(description: string): string {";
+  const args = [descriptionOfCode];
+  const description =
+    "Analyzes the given description and return code in Javascript without types that accomplishes the described goal.";
+
+  const result = await callAIFunction({
+    function: functionString,
+    args,
+    description,
+  });
+
+  return result;
+}
 
 async function evaluateCode(code: string): Promise<string> {
   const functionString = "function analyzeCode(code: string): string[] {";
@@ -45,6 +60,14 @@ async function writeTests(code: string, focus: string[]): Promise<string> {
 }
 
 const CodeGenerationCommandPlugin: CommandPlugin[] = [
+  {
+    command: "create_code",
+    name: "Create Code",
+    arguments: {
+      description: "description_of_code_to_create"
+    },
+    execute: (args) => createCode(args["description"])
+  },
   {
     command: "evaluate_code",
     name: "Evaluate Code",

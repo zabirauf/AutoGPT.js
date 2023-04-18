@@ -50,7 +50,7 @@ function scrapLinks(url: string): Promise<string | string[]> {
           src = new URL(href, url).toString();
         } catch {}
       }
-      linksStr.push(`${link.innerText} ${src}`);
+      linksStr.push(`<a href="${src}">${link.innerText}</a>`);
     }
     return linksStr;
   });
@@ -91,14 +91,14 @@ async function summarizeText(text: string, isWebsite = true): Promise<string> {
       ? [
           {
             role: "user",
-            content: `Please summarize the following website text, do not describe the general website, but instead concisely extract the specific information this subpage contains.: 
+            content: `Please summarize the following website text, do not describe the general website, but instead concisely extract the specific information this subpage contains:\n\n 
               ${chunk}`,
           },
         ]
       : [
           {
             role: "user",
-            content: `Please summarize the following text, focusing on extracting concise and specific information: 
+            content: `Please summarize the following text, focusing on extracting concise and specific information:\n\n
               ${chunk}`,
           },
         ];
@@ -113,19 +113,24 @@ async function summarizeText(text: string, isWebsite = true): Promise<string> {
     summaries.push(summary);
   }
 
+  if (summaries.length === 1) {
+    // If there is only a single summary then return that
+    return summaries[0];
+  }
+
   const combinedSummary = summaries.join("\n");
   const messages: LLMMessage[] = isWebsite
     ? [
         {
           role: "user",
-          content: `Please summarize the following website text, do not describe the general website, but instead concisely extract the specific information this subpage contains.: 
+          content: `Please summarize the following website text, do not describe the general website, but instead concisely extract the specific information this subpage contains:\n\n 
             ${combinedSummary}`,
         },
       ]
     : [
         {
           role: "user",
-          content: `Please summarize the following text, focusing on extracting concise and specific information: 
+          content: `Please summarize the following text, focusing on extracting concise and specific information:\n\n
             ${combinedSummary}`,
         },
       ];
@@ -157,7 +162,7 @@ const BrowserCommandPlugins: CommandPlugin[] = [
         return linksOrError;
       }
 
-      return `Website Content Summary: ${summary}\n\nLinks: ${linksOrError.join(
+      return `Website Content Summary:\n ${summary}\n\nLinks:\n ${linksOrError.slice(0, 10).join(
         "\n"
       )}`;
     },

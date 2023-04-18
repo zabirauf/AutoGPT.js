@@ -1,6 +1,7 @@
 import { Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline';
 import { Dialog } from '@headlessui/react';
 import { GitHubBadge } from './GitHubBadge';
+import { TweetShare } from './TweetShare';
 import { useEffect, useState } from 'react';
 
 export function Header() {
@@ -18,6 +19,7 @@ export function Header() {
           </span>
         </a>
         <div className="flex flex-1 justify-end">
+          <TweetShare />
           <GitHubBadge />
         </div>
       </nav>
@@ -46,6 +48,7 @@ export function Header() {
               </span>
             </a>
             <div className="flex flex-1 justify-end">
+              <TweetShare />
               <GitHubBadge />
             </div>
           </div>
