@@ -48,7 +48,7 @@ export function AIInfoForm() {
                 name="name"
                 id="name"
                 className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-                placeholder={aiInfo.name}
+                defaultValue={aiInfo.name}
               />
             </div>
           </div>
@@ -66,7 +66,7 @@ export function AIInfoForm() {
                 name="description"
                 id="description"
                 className="block h-48 w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-                placeholder={aiInfo.description}
+                defaultValue={aiInfo.description}
               />
             </div>
           </div>
@@ -138,7 +138,7 @@ export function AIGoalsForm() {
                 name="goals"
                 id="goals"
                 className="block h-48 w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-                placeholder={aiInfo.goals.join("\n")}
+                defaultValue={aiInfo.goals.join("\n")}
               />
             </div>
           </div>

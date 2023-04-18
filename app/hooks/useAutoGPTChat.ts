@@ -143,7 +143,7 @@ export function useAutoGPTChat(
             id: generateID(),
           });
         }
-        appendToFullMessageHistory([{ role: "system", content: result }]);
+        appendToFullMessageHistory([{ role: "user", content: result }]);
 
         if (commandName === "task_complete") {
           onTaskCompleted();
