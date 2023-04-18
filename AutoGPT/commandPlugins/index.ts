@@ -5,6 +5,8 @@ import FileOperationCommandPlugins from './FileOperationCommandPlugins';
 import MemoryCommandPlugins from './MemoryCommandPlugins';
 import TaskCompleteCommandPlugins from './TaskCompleteCommandPlugins';
 import { fixAndParseJson } from '../utils/jsonParsingAssist';
+import { fixAndParseYAML } from '../utils/yamlParsingAssist';
+import type { ResponseSchema } from "../utils/types";
 
 export const CommandPlugins = [
   ...MemoryCommandPlugins,
@@ -15,22 +17,28 @@ export const CommandPlugins = [
   ...TaskCompleteCommandPlugins,
 ];
 
-export async function getCommand(response: string): Promise<{
+export async function getCommand(
+  response: string,
+  responseSchema: ResponseSchema
+): Promise<{
   commandName: string;
   argumentsObj: string | { [key: string]: string };
-  jsonResponse?: any;
+  rawParsedResponse?: any;
 }> {
   try {
-    const responseJson = (await fixAndParseJson(response)) as any;
+    const rawParsedResponse =
+      responseSchema === "JSON"
+        ? ((await fixAndParseJson(response)) as any)
+        : ((await fixAndParseYAML(response)) as any);
 
-    if (!responseJson["command"]) {
+    if (!rawParsedResponse["command"]) {
       return {
         commandName: "Error:",
-        argumentsObj: "Missing 'command' object in JSON",
+        argumentsObj: `Missing 'command' object in ${responseSchema}`,
       };
     }
 
-    const command = responseJson["command"] as any;
+    const command = rawParsedResponse["command"] as any;
 
     if (!command["name"]) {
       return {
@@ -42,10 +50,13 @@ export async function getCommand(response: string): Promise<{
     const commandName = command["name"] as string;
     const argumentsObj: { [key: string]: string } = command["args"] || {};
 
-    return { commandName, argumentsObj, jsonResponse: responseJson };
+    return { commandName, argumentsObj, rawParsedResponse: rawParsedResponse };
   } catch (e) {
     if (e instanceof SyntaxError) {
-      return { commandName: "Error:", argumentsObj: "Invalid JSON" };
+      return {
+        commandName: "Error:",
+        argumentsObj: `Invalid ${responseSchema}`,
+      };
     }
     return { commandName: "Error:", argumentsObj: String(e) };
   }

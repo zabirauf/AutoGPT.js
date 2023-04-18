@@ -1,43 +1,11 @@
 import { callAIFunction } from './llmUtils';
 import { Config } from './config';
-
-export interface AIResponseSchema {
-  command: {
-    name: string;
-    args: { [key: string]: string };
-  };
-  thoughts: {
-    text: string;
-    reasoning: string;
-    plan: string;
-    criticism: string;
-    speak: string;
-  };
-}
+import { JSON_SCHEMA } from './prompt';
 
 export async function fixAndParseJson(
   jsonStr: string,
   tryToFixWithGpt: boolean = true
 ): Promise<unknown> {
-  const jsonSchema = `
-    {
-    "command": {
-        "name": "command name",
-        "args":{
-            "arg name": "value"
-        }
-    },
-    "thoughts":
-    {
-        "text": "thought",
-        "reasoning": "reasoning",
-        "plan": "- short bulleted\n- list that conveys\n- long-term plan",
-        "criticism": "constructive self-criticism",
-        "speak": "thoughts summary to say to user"
-    }
-    }
-    `;
-
   try {
     return JSON.parse(jsonStr.replaceAll("\n", "\\n"));
   } catch (e) {
@@ -60,7 +28,7 @@ export async function fixAndParseJson(
           console.warn(
             "Warning: Failed to parse AI output, attempting to fix.\n If you see this warning frequently, it's likely that your prompt is confusing the AI. Try changing it up slightly."
           );
-          const aiFixedJson = await fixJson(jsonStr, jsonSchema, false);
+          const aiFixedJson = await fixJson(jsonStr, JSON_SCHEMA, false);
           if (aiFixedJson !== "failed") {
             return JSON.parse(aiFixedJson);
           } else {
@@ -102,7 +70,8 @@ async function fixJson(
     console.debug("----------- END OF FIX ATTEMPT ----------------");
   }
   try {
-    return JSON.parse(resultString);
+    JSON.parse(resultString);
+    return resultString;
   } catch {
     return "failed";
   }
