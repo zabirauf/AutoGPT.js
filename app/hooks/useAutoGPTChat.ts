@@ -4,14 +4,16 @@ import { generatePrompt } from 'AutoGPT/utils/prompt';
 import { permanentMemory } from 'AutoGPT/commandPlugins/MemoryCommandPlugins';
 import { useCallback } from 'react';
 import { useEffect, useRef, useState } from 'react';
-import type { LLMMessage, LLMModel } from "AutoGPT/utils/llmUtils";
+import type { LLMMessage, LLMModel } from "AutoGPT/utils/types";
 import { useAIState } from "~/components/AIStateProvider";
-import type { AIResponseSchema } from "AutoGPT/utils/jsonParsingAssist";
+import type { AIResponseSchema } from "AutoGPT/utils/types";
 import { generateID } from "~/utils/generateID";
 import { Activity } from "~/types/Activity";
 
 const USER_INPUT =
   "Determine which next command to use, and respond using the format specified above:";
+
+const RESPONSE_SCHEMA = "YAML" as const;
 
 export function useAutoGPTChat(
   onActivity: (activity: Activity) => void,
@@ -53,12 +55,12 @@ export function useAutoGPTChat(
     isChatInProgress.current = true;
     prevMessageIndexRan.current = currMessageIndex;
     onActivity({
-      type: 'system:info',
-      prompt: 'Generating next command',
-      id: generateID()
+      type: "system:info",
+      prompt: "Generating next command",
+      id: generateID(),
     });
     chatWithAI({
-      prompt: generatePrompt(name, description, goals),
+      prompt: generatePrompt(name, description, goals, RESPONSE_SCHEMA),
       fullMessageHistory: fullMessageHistory.current,
       appendToFullMessageHistory,
       permanentMemory,
@@ -70,53 +72,56 @@ export function useAutoGPTChat(
       .then(async (assistantReply) => {
         let commandName: string = "error";
         let args: string | { [key: string]: string } = {};
-        let jsonResponse: AIResponseSchema | undefined = undefined;
+        let rawParsedResponse: AIResponseSchema | undefined = undefined;
 
         try {
-          const commandResult = await getCommand(assistantReply);
+          const commandResult = await getCommand(
+            assistantReply,
+            RESPONSE_SCHEMA
+          );
           commandName = commandResult.commandName;
           args = commandResult.argumentsObj;
-          jsonResponse = commandResult.jsonResponse;
+          rawParsedResponse = commandResult.rawParsedResponse;
         } catch (error) {
           console.error("Error when getting command", error);
         }
 
-        userInput.current = "GENERATE NEXT COMMAND JSON";
+        userInput.current = `GENERATE NEXT COMMAND ${RESPONSE_SCHEMA}`;
 
         let result: string;
         if (commandName.toLowerCase() != "error" && typeof args !== "string") {
-          if (jsonResponse) {
+          if (rawParsedResponse) {
             if (
-              jsonResponse["command"] &&
-              jsonResponse["command"]["name"] == "write_to_file" &&
-              !!jsonResponse["command"]["args"]["file"] &&
-              /\.(js|py)$/.test(jsonResponse["command"]["args"]["file"])
+              rawParsedResponse["command"] &&
+              rawParsedResponse["command"]["name"] == "write_to_file" &&
+              !!rawParsedResponse["command"]["args"]["file"] &&
+              /\.(js|py)$/.test(rawParsedResponse["command"]["args"]["file"])
             ) {
               // When its code being written to a file
               onActivity({
                 type: "chat:command:code",
-                response: jsonResponse,
-                code: jsonResponse["command"]["args"]["text"],
+                response: rawParsedResponse,
+                code: rawParsedResponse["command"]["args"]["text"],
                 id: generateID(),
               });
             } else if (
-              jsonResponse["command"] &&
-              (jsonResponse["command"]["name"] === "evaluate_code" ||
-                jsonResponse["command"]["name"] === "improve_code" ||
-                jsonResponse["command"]["name"] === "write_tests") &&
-              !!jsonResponse["command"]["args"]["code"]
+              rawParsedResponse["command"] &&
+              (rawParsedResponse["command"]["name"] === "evaluate_code" ||
+                rawParsedResponse["command"]["name"] === "improve_code" ||
+                rawParsedResponse["command"]["name"] === "write_tests") &&
+              !!rawParsedResponse["command"]["args"]["code"]
             ) {
               // When its code related command
               onActivity({
                 type: "chat:command:code",
-                response: jsonResponse,
-                code: jsonResponse["command"]["args"]["code"],
+                response: rawParsedResponse,
+                code: rawParsedResponse["command"]["args"]["code"],
                 id: generateID(),
               });
-            } else if (jsonResponse["thoughts"]) {
+            } else if (rawParsedResponse["thoughts"]) {
               onActivity({
                 type: "chat:command",
-                response: jsonResponse,
+                response: rawParsedResponse,
                 id: generateID(),
               });
             }

@@ -1,10 +1,7 @@
+import { callLLMChatCompletion } from 'AutoGPT/utils/llmUtils';
 import { CommandPlugin } from './CommandPlugin';
 import { Config } from 'AutoGPT/utils/config';
-import {
-  callLLMChatCompletion,
-  LLMMessage,
-  LLMModel,
-} from "AutoGPT/utils/llmUtils";
+import type { LLMMessage, LLMModel } from 'AutoGPT/utils/types';
 
 interface Agent {
   name: string;
@@ -116,8 +113,7 @@ const AgentCommandPlugins: CommandPlugin[] = [
       message: "message",
       data: "data_for_message",
     },
-    execute: (args) =>
-      messageAgent(args["key"], args["message"], args["data"]),
+    execute: (args) => messageAgent(args["key"], args["message"], args["data"]),
   },
   {
     command: "list_agents",

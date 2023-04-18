@@ -1,4 +1,4 @@
-import { AIResponseSchema } from 'AutoGPT/utils/jsonParsingAssist';
+import { AIResponseSchema } from 'AutoGPT/utils/types';
 
 export interface SystemInfoActivity {
   id: string;
