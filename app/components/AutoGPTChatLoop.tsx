@@ -1,4 +1,3 @@
-import hljs from 'highlight.js';
 import { ChatBubbleLeftEllipsisIcon } from '@heroicons/react/20/solid';
 import { PauseButton, ResumeButton } from './Buttons';
 import {
@@ -93,15 +92,12 @@ interface ChatCommandCodeActivityProps {
   activity: ChatCommandCodeActivity;
 }
 function ChatCommandCodeActivityComponent({ activity }: ChatCommandCodeActivityProps) {
-  useEffect(() => {
-    hljs.highlightAll();
-  });
   return (
     <ChatCommandActivityComponent activity={{ ...activity, type: "chat:command" }}>
       {activity.code && (
         <InfoRow fieldName="Code" key="code">
           <pre className="overflow-x-scroll">
-            <code className="language-javascript">{activity.code}</code>
+            <code>{activity.code}</code>
           </pre>
         </InfoRow>
       )}
