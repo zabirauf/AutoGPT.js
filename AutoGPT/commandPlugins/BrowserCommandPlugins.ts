@@ -1,5 +1,6 @@
-import { callLLMChatCompletion, LLMMessage } from 'AutoGPT/utils/llmUtils';
+import { callLLMChatCompletion } from 'AutoGPT/utils/llmUtils';
 import { CommandPlugin } from './CommandPlugin';
+import type { LLMMessage } from "AutoGPT/utils/types";
 
 let callProxyFn: (
   url: string
@@ -162,9 +163,9 @@ const BrowserCommandPlugins: CommandPlugin[] = [
         return linksOrError;
       }
 
-      return `Website Content Summary:\n ${summary}\n\nLinks:\n ${linksOrError.slice(0, 10).join(
-        "\n"
-      )}`;
+      return `Website Content Summary:\n ${summary}\n\nLinks:\n ${linksOrError
+        .slice(0, 10)
+        .join("\n")}`;
     },
   },
 ];

@@ -13,3 +13,14 @@ export interface AIResponseSchema {
 
 export type ResponseSchema = "YAML" | "JSON";
 
+export type LLMMessage =
+  | { role: "system"; content: string; }
+  | { role: "assistant"; content: string; }
+  | { role: "user"; content: string; };
+
+export type LLMModel =
+  | "gpt-3.5-turbo"
+  | "gpt-3.5-turbo-0301"
+  | "gpt-4"
+  | "gpt-4-32k";
+

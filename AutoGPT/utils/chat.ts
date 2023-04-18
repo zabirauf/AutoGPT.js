@@ -1,6 +1,7 @@
-import { callLLMChatCompletion, LLMMessage, LLMModel } from './llmUtils';
+import { callLLMChatCompletion } from './llmUtils';
 import { Config } from './config';
 import { countMessageTokens } from './tokenCounter';
+import type { LLMMessage, LLMModel } from "./types";
 
 interface ChatWithAiArgs {
   prompt: string;

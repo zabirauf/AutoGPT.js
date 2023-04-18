@@ -1,16 +1,6 @@
 import { Config } from './config';
 import { getAPIKey } from './apiKey';
-
-export type LLMMessage =
-  | { role: "system"; content: string; }
-  | { role: "assistant"; content: string; }
-  | { role: "user"; content: string; };
-
-export type LLMModel =
-  | "gpt-3.5-turbo"
-  | "gpt-3.5-turbo-0301"
-  | "gpt-4"
-  | "gpt-4-32k";
+import type { LLMMessage, LLMModel } from './types';
 
 export async function callLLMChatCompletion(
   messages: LLMMessage[],
@@ -49,34 +39,32 @@ export async function callLLMChatCompletion(
 }
 
 export interface CallAIFunctionArgs {
-    function: string;
-    args: any[];
-    description: string;
-    model?: LLMModel;
+  function: string;
+  args: any[];
+  description: string;
+  model?: LLMModel;
 }
 
 export async function callAIFunction({
-    function: aiFunction,
-    args,
-    description,
-    model = Config.smart_llm_model,
+  function: aiFunction,
+  args,
+  description,
+  model = Config.smart_llm_model,
 }: CallAIFunctionArgs): Promise<string> {
-    args = args.map(arg => (arg !== null && arg !== undefined ? `${String(arg)}` : 'None'));
-    const argsString = args.join(', ');
+  args = args.map((arg) =>
+    arg !== null && arg !== undefined ? `${String(arg)}` : "None"
+  );
+  const argsString = args.join(", ");
 
-    const messages: LLMMessage[] = [
-        {
-            role: 'system',
-            content: `You are now the following typescript function: \`\`\`# ${description}\n${aiFunction}\`\`\`\n\nOnly respond with your \`return\` value.`,
-        },
-        { role: 'user', content: argsString },
-    ];
+  const messages: LLMMessage[] = [
+    {
+      role: "system",
+      content: `You are now the following typescript function: \`\`\`# ${description}\n${aiFunction}\`\`\`\n\nOnly respond with your \`return\` value.`,
+    },
+    { role: "user", content: argsString },
+  ];
 
-    const response = callLLMChatCompletion(
-        messages,
-        model,
-        0 /* temperature */,
-    );
+  const response = callLLMChatCompletion(messages, model, 0 /* temperature */);
 
-    return response;
+  return response;
 }

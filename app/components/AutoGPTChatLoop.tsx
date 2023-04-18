@@ -147,6 +147,7 @@ function ChatCommandActivityComponent({ activity, children }: ChatCommandActivit
                   .replaceAll("\\n","\n")
                   .split("\n")
                   .map((s) => s.replaceAll("- ", ""))
+                  .filter((s) => !!s && s!=="")
                   .map((s) => (
                     <li>{s}</li>
                   ))}

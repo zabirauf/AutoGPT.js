@@ -4,7 +4,7 @@ import { generatePrompt } from 'AutoGPT/utils/prompt';
 import { permanentMemory } from 'AutoGPT/commandPlugins/MemoryCommandPlugins';
 import { useCallback } from 'react';
 import { useEffect, useRef, useState } from 'react';
-import type { LLMMessage, LLMModel } from "AutoGPT/utils/llmUtils";
+import type { LLMMessage, LLMModel } from "AutoGPT/utils/types";
 import { useAIState } from "~/components/AIStateProvider";
 import type { AIResponseSchema } from "AutoGPT/utils/types";
 import { generateID } from "~/utils/generateID";
@@ -12,6 +12,8 @@ import { Activity } from "~/types/Activity";
 
 const USER_INPUT =
   "Determine which next command to use, and respond using the format specified above:";
+
+const RESPONSE_SCHEMA = "YAML" as const;
 
 export function useAutoGPTChat(
   onActivity: (activity: Activity) => void,
@@ -58,7 +60,7 @@ export function useAutoGPTChat(
       id: generateID(),
     });
     chatWithAI({
-      prompt: generatePrompt(name, description, goals, "YAML"),
+      prompt: generatePrompt(name, description, goals, RESPONSE_SCHEMA),
       fullMessageHistory: fullMessageHistory.current,
       appendToFullMessageHistory,
       permanentMemory,
@@ -73,7 +75,10 @@ export function useAutoGPTChat(
         let rawParsedResponse: AIResponseSchema | undefined = undefined;
 
         try {
-          const commandResult = await getCommand(assistantReply, "YAML");
+          const commandResult = await getCommand(
+            assistantReply,
+            RESPONSE_SCHEMA
+          );
           commandName = commandResult.commandName;
           args = commandResult.argumentsObj;
           rawParsedResponse = commandResult.rawParsedResponse;
@@ -81,7 +86,7 @@ export function useAutoGPTChat(
           console.error("Error when getting command", error);
         }
 
-        userInput.current = "GENERATE NEXT COMMAND JSON";
+        userInput.current = `GENERATE NEXT COMMAND ${RESPONSE_SCHEMA}`;
 
         let result: string;
         if (commandName.toLowerCase() != "error" && typeof args !== "string") {
