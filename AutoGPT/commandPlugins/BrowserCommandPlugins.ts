@@ -58,6 +58,34 @@ function scrapLinks(url: string): Promise<string | string[]> {
   });
 }
 
+function scrapSearchResults(query: string): Promise<string | string[]> {
+  return callProxyAndReturnFromDocument(
+    `https://html.duckduckgo.com/html/?q=${encodeURI(query)}`,
+    (doc) => {
+      const results = document.body.querySelectorAll(".result .links_main");
+
+      const resultsToReturn: string[] = [];
+      for (const result of results) {
+        try {
+          const anchor = result.querySelector(
+            ".result__title a"
+          ) as HTMLElement | null;
+          if (anchor) {
+            const url = new URL(
+              `https://${anchor.getAttribute("href")}`
+            ).searchParams.get("uddg");
+            const title = anchor.innerText;
+
+            resultsToReturn.push(`Title: ${title}; URL: ${url}`);
+          }
+        } catch {}
+      }
+
+      return resultsToReturn;
+    }
+  );
+}
+
 function* splitText(text: string, maxLength = 8192): Generator<string> {
   const paragraphs = text.split("\n");
   let currentLength = 0;
@@ -167,6 +195,22 @@ const BrowserCommandPlugins: CommandPlugin[] = [
       return `Website Content Summary:\n ${summary}\n\nLinks:\n ${linksOrError
         .slice(0, 10)
         .join("\n")}`;
+    },
+  },
+  {
+    command: "search_internet",
+    name: "Search internet",
+    arguments: {
+      query: "query",
+    },
+    execute: async (args) => {
+      const result = await scrapSearchResults(args["query"]);
+
+      if (typeof result === "string") {
+        return result;
+      }
+
+      return `Search results:\n\n${result.slice(0, 10).join("\n")}`;
     },
   },
 ];
