@@ -161,8 +161,8 @@ export function AIGoalsForm() {
               defaultValue={getConfig().models.mainLoopModel}
               ref={modelSelectorRef}
             >
-              <option value={gpt35Model}>GPT 3.5-turbo</option>
-              <option value={gpt4model}>GPT 4</option>
+              <option value={gpt35Model}>🐇 GPT 3.5-turbo</option>
+              <option value={gpt4model}>🐢 GPT 4</option>
             </select>
           </div>
 
