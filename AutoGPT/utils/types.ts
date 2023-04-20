@@ -29,8 +29,9 @@ export interface AutoGPTConfig {
     mainLoopModel: LLMModel;
     schemaFixingModel: LLMModel;
     plugins: {
-      codeCreationModel: LLMModel;
       agentModel: LLMModel;
+      browserModel: LLMModel;
+      codeCreationModel: LLMModel;
     }
   }
 }

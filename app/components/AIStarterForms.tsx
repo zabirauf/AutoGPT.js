@@ -119,7 +119,7 @@ export function AIGoalsForm() {
     setupDispatcher("prev_stage");
   }, []);
 
-  const gpt35Model: LLMModel = "gpt-3.5-turbo-0301";
+  const gpt35Model: LLMModel = "gpt-3.5-turbo";
   const gpt4model: LLMModel = "gpt-4";
 
   return (

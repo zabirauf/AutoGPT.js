@@ -1,5 +1,6 @@
 import { callLLMChatCompletion } from 'AutoGPT/utils/llmUtils';
 import { CommandPlugin } from './CommandPlugin';
+import { getConfig } from 'AutoGPT/utils/config';
 import type { LLMMessage } from "AutoGPT/utils/types";
 
 let callProxyFn: (
@@ -106,7 +107,7 @@ async function summarizeText(text: string, isWebsite = true): Promise<string> {
 
     const summary = await callLLMChatCompletion(
       messages,
-      "gpt-3.5-turbo",
+      getConfig().models.plugins.browserModel,
       undefined /* temperature */,
       300 /* maxTokens */
     );
@@ -138,7 +139,7 @@ async function summarizeText(text: string, isWebsite = true): Promise<string> {
 
   const finalSummary = await callLLMChatCompletion(
     messages,
-    "gpt-3.5-turbo",
+    getConfig().models.plugins.browserModel,
     undefined /* temperature */,
     300 /* maxTokens */
   );
