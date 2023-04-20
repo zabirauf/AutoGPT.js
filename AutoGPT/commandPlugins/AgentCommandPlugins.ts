@@ -1,7 +1,7 @@
 import { callLLMChatCompletion } from 'AutoGPT/utils/llmUtils';
 import { CommandPlugin } from './CommandPlugin';
-import { Config } from 'AutoGPT/utils/config';
-import type { LLMMessage, LLMModel } from 'AutoGPT/utils/types';
+import { getConfig } from 'AutoGPT/utils/config';
+import type { LLMMessage, LLMModel } from "AutoGPT/utils/types";
 
 interface Agent {
   name: string;
@@ -18,7 +18,7 @@ async function startAgent(
   task: string,
   prompt: string,
   context: string,
-  model: LLMModel = Config.fast_llm_model
+  model: LLMModel
 ) {
   const firstMessage = `You are ${name}. Respond with: "Acknowledged".`;
   const { key, agentReply } = await createAgent(
@@ -103,7 +103,13 @@ const AgentCommandPlugins: CommandPlugin[] = [
       data: "data_for_prompt",
     },
     execute: (args) =>
-      startAgent(args["name"], args["task"], args["prompt"], args["data"]),
+      startAgent(
+        args["name"],
+        args["task"],
+        args["prompt"],
+        args["data"],
+        getConfig().models.plugins.agentModel
+      ),
   },
   {
     command: "message_agent",

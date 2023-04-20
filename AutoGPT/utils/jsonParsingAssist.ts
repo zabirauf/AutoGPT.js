@@ -1,5 +1,5 @@
 import { callAIFunction } from './llmUtils';
-import { Config } from './config';
+import { getConfig } from './config';
 import { JSON_SCHEMA } from './prompt';
 
 export async function fixAndParseJson(
@@ -60,7 +60,7 @@ async function fixJson(
     function: functionString,
     args,
     description,
-    model: Config.fast_llm_model,
+    model: getConfig().models.schemaFixingModel,
   });
   if (debug) {
     console.debug("------------ JSON FIX ATTEMPT ---------------");

@@ -1,6 +1,7 @@
-import { Config } from 'AutoGPT/utils/config';
+import { getConfig, updatePartialConfig } from 'AutoGPT/utils/config';
 import { useAIState, useAIStateDispatcher } from './AIStateProvider';
 import { useCallback, useRef } from 'react';
+import type { LLMModel } from "AutoGPT/utils/types";
 
 export function AIInfoForm() {
   const { aiInfo } = useAIState();
@@ -103,7 +104,7 @@ export function AIGoalsForm() {
   const onDoneButtonClicked = useCallback(() => {
     const model = modelSelectorRef.current?.value;
     if (model) {
-      aiInfoDispatcher({ type: "set_model", model });
+      aiInfoDispatcher({ type: "set_model", model: model as LLMModel });
     }
 
     const goals = goalsRef.current?.value;
@@ -117,6 +118,9 @@ export function AIGoalsForm() {
   const onBackButtonClicked = useCallback(() => {
     setupDispatcher("prev_stage");
   }, []);
+
+  const gpt35Model: LLMModel = "gpt-3.5-turbo";
+  const gpt4model: LLMModel = "gpt-4";
 
   return (
     <div className="bg-white shadow sm:w-96 sm:rounded-lg">
@@ -154,11 +158,11 @@ export function AIGoalsForm() {
               id="location"
               name="location"
               className="mt-2 block w-full rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-indigo-600 sm:text-sm sm:leading-6"
-              defaultValue={Config.fast_llm_model}
+              defaultValue={getConfig().models.mainLoopModel}
               ref={modelSelectorRef}
             >
-              <option value={Config.fast_llm_model}>GPT 3.5-turbo</option>
-              <option value={Config.smart_llm_model}>GPT 4</option>
+              <option value={gpt35Model}>🐇 GPT 3.5-turbo</option>
+              <option value={gpt4model}>🐢 GPT 4</option>
             </select>
           </div>
 

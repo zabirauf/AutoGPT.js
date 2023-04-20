@@ -24,3 +24,14 @@ export type LLMModel =
   | "gpt-4"
   | "gpt-4-32k";
 
+export interface AutoGPTConfig {
+  models: {
+    mainLoopModel: LLMModel;
+    schemaFixingModel: LLMModel;
+    plugins: {
+      agentModel: LLMModel;
+      browserModel: LLMModel;
+      codeCreationModel: LLMModel;
+    }
+  }
+}

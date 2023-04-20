@@ -4,9 +4,9 @@ import CodeGenerationCommandPlugin from './CodeGenerationCommandPlugin';
 import FileOperationCommandPlugins from './FileOperationCommandPlugins';
 import MemoryCommandPlugins from './MemoryCommandPlugins';
 import TaskCompleteCommandPlugins from './TaskCompleteCommandPlugins';
-import { fixAndParseJson } from '../utils/jsonParsingAssist';
-import { fixAndParseYAML } from '../utils/yamlParsingAssist';
-import type { ResponseSchema } from "../utils/types";
+import { fixAndParseJson } from 'AutoGPT/utils/jsonParsingAssist';
+import { fixAndParseYAML } from 'AutoGPT/utils/yamlParsingAssist';
+import type { ResponseSchema } from "AutoGPT/utils/types";
 
 export const CommandPlugins = [
   ...MemoryCommandPlugins,

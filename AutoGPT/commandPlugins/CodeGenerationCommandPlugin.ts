@@ -1,5 +1,6 @@
-import { callAIFunction } from '../utils/llmUtils';
+import { callAIFunction } from 'AutoGPT/utils/llmUtils';
 import { CommandPlugin } from './CommandPlugin';
+import { getConfig } from 'AutoGPT/utils/config';
 
 async function createCode(descriptionOfCode: string): Promise<string> {
   const functionString = "function createCode(description: string): string {";
@@ -11,6 +12,7 @@ async function createCode(descriptionOfCode: string): Promise<string> {
     function: functionString,
     args,
     description,
+    model: getConfig().models.plugins.codeCreationModel,
   });
 
   return result;
@@ -26,34 +28,44 @@ async function evaluateCode(code: string): Promise<string> {
     function: functionString,
     args,
     description,
+    model: getConfig().models.plugins.codeCreationModel,
   });
 
   return result;
 }
 
-async function improveCode(suggestions: string[], code: string): Promise<string> {
-  const functionString = "function generateImprovedCode(suggestions: string[], code: string): string {";
+async function improveCode(
+  suggestions: string[],
+  code: string
+): Promise<string> {
+  const functionString =
+    "function generateImprovedCode(suggestions: string[], code: string): string {";
   const args = [JSON.stringify(suggestions), code];
-  const description = "Improves the provided code based on the suggestions provided, making no other changes.";
+  const description =
+    "Improves the provided code based on the suggestions provided, making no other changes.";
 
   const result = await callAIFunction({
     function: functionString,
     args,
     description,
+    model: getConfig().models.plugins.codeCreationModel,
   });
 
   return result;
 }
 
 async function writeTests(code: string, focus: string[]): Promise<string> {
-  const functionString = "function createTestCases(code: string, focus?: string[]): string {";
+  const functionString =
+    "function createTestCases(code: string, focus?: string[]): string {";
   const args = [code, JSON.stringify(focus)];
-  const description = "Generates test cases for the existing code, focusing on specific areas if required.";
+  const description =
+    "Generates test cases for the existing code, focusing on specific areas if required.";
 
   const result = await callAIFunction({
     function: functionString,
     args,
     description,
+    model: getConfig().models.plugins.codeCreationModel,
   });
 
   return result;
@@ -64,9 +76,9 @@ const CodeGenerationCommandPlugin: CommandPlugin[] = [
     command: "create_code",
     name: "Create Code",
     arguments: {
-      description: "description_of_code_to_create"
+      description: "description_of_code_to_create",
     },
-    execute: (args) => createCode(args["description"])
+    execute: (args) => createCode(args["description"]),
   },
   {
     command: "evaluate_code",
@@ -92,7 +104,7 @@ const CodeGenerationCommandPlugin: CommandPlugin[] = [
       code: "full_code_string",
       focus: "list_of_focus_areas",
     },
-    execute: (args) => writeTests(args["code"], args["focus"])
+    execute: (args) => writeTests(args["code"], args["focus"]),
   },
 ];
 export default CodeGenerationCommandPlugin;
