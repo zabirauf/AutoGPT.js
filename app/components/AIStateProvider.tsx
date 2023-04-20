@@ -1,4 +1,3 @@
-import { Config } from 'AutoGPT/utils/config';
 import {
   createContext,
   useContext,
@@ -6,8 +5,14 @@ import {
   useReducer
   } from 'react';
 import { getAPIKey } from 'AutoGPT/utils/apiKey';
+import {
+  getConfig,
+  getModelConfigWithModel,
+  updatePartialConfig,
+} from "AutoGPT/utils/config";
 import type { Dispatch, PropsWithChildren } from "react";
 import { assertNever } from "~/utils/asserts";
+import type { LLMModel } from "AutoGPT/utils/types";
 
 /* Top level AI State */
 interface AIState {
@@ -30,7 +35,7 @@ function getDefaultAIState(): AIState {
         "Grow Twitter Account",
         "Develop and manage multiple businesses autonomously",
       ],
-      model: Config.fast_llm_model,
+      model: getConfig().models.mainLoopModel,
     },
   });
 
@@ -144,7 +149,7 @@ interface AIInfoState {
 type AIInfoReducerAction =
   | { type: "set_name"; name: string }
   | { type: "set_description"; description: string }
-  | { type: "set_model"; model: string }
+  | { type: "set_model"; model: LLMModel }
   | { type: "set_goals"; goals: string[] };
 
 function aiInfoReducer(
@@ -156,6 +161,12 @@ function aiInfoReducer(
   } else if (action.type === "set_description") {
     return { ...state, description: action.description };
   } else if (action.type === "set_model") {
+    const modelToSelect: LLMModel =
+      action.model === "gpt-3.5-turbo" || action.model === "gpt-3.5-turbo-0301"
+        ? "gpt-3.5-turbo-0301"
+        : "gpt-4";
+    const modelConfig = getModelConfigWithModel(modelToSelect);
+    updatePartialConfig({ models: modelConfig });
     return { ...state, model: action.model };
   } else if (action.type === "set_goals") {
     // As setting goals is generally the last stage of AIInfoState

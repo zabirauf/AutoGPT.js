@@ -1,5 +1,5 @@
 import { callAIFunction } from './llmUtils';
-import { Config } from './config';
+import { getConfig } from './config';
 import { parse as parseYAML } from 'yaml';
 import { YAML_SCHEMA } from './prompt';
 
@@ -50,7 +50,7 @@ async function fixYAML(
     function: functionString,
     args,
     description,
-    model: Config.fast_llm_model,
+    model: getConfig().models.schemaFixingModel,
   });
   if (debug) {
     console.debug("------------ YAML FIX ATTEMPT ---------------");

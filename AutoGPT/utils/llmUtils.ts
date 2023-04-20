@@ -1,4 +1,3 @@
-import { Config } from './config';
 import { getAPIKey } from './apiKey';
 import type { LLMMessage, LLMModel } from './types';
 
@@ -42,14 +41,14 @@ export interface CallAIFunctionArgs {
   function: string;
   args: any[];
   description: string;
-  model?: LLMModel;
+  model: LLMModel;
 }
 
 export async function callAIFunction({
   function: aiFunction,
   args,
   description,
-  model = Config.smart_llm_model,
+  model
 }: CallAIFunctionArgs): Promise<string> {
   args = args.map((arg) =>
     arg !== null && arg !== undefined ? `${String(arg)}` : "None"
