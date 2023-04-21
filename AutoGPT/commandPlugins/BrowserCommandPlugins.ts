@@ -1,7 +1,8 @@
 import { callLLMChatCompletion } from 'AutoGPT/utils/llmUtils';
 import { CommandPlugin } from './CommandPlugin';
+import { countStringTokens } from 'AutoGPT/utils/tokenCounter';
 import { getConfig } from 'AutoGPT/utils/config';
-import type { LLMMessage } from "AutoGPT/utils/types";
+import type { LLMMessage, LLMModel } from "AutoGPT/utils/types";
 
 let callProxyFn: (
   url: string
@@ -62,7 +63,7 @@ function scrapSearchResults(query: string): Promise<string | string[]> {
   return callProxyAndReturnFromDocument(
     `https://html.duckduckgo.com/html/?q=${encodeURI(query)}`,
     (doc) => {
-      const results = document.body.querySelectorAll(".result .links_main");
+      const results = doc.body.querySelectorAll(".result .links_main");
 
       const resultsToReturn: string[] = [];
       for (const result of results) {
@@ -86,19 +87,20 @@ function scrapSearchResults(query: string): Promise<string | string[]> {
   );
 }
 
-function* splitText(text: string, maxLength = 8192): Generator<string> {
+function* splitText(text: string, model: LLMModel, maxTokens = 3000): Generator<string> {
   const paragraphs = text.split("\n");
   let currentLength = 0;
   let currentChunk: string[] = [];
 
   for (const paragraph of paragraphs) {
-    if (currentLength + paragraph.length + 1 <= maxLength) {
+    const tokensInParagraph = countStringTokens(paragraph, model);
+    if (currentLength + tokensInParagraph <= maxTokens) {
       currentChunk.push(paragraph);
-      currentLength += paragraph.length + 1;
+      currentLength += tokensInParagraph
     } else {
       yield currentChunk.join("\n");
       currentChunk = [paragraph];
-      currentLength = paragraph.length + 1;
+      currentLength = tokensInParagraph
     }
   }
 
@@ -112,9 +114,11 @@ async function summarizeText(text: string, isWebsite = true): Promise<string> {
     return "Error: No text to summarize";
   }
 
+  const currentModel = getConfig().models.plugins.browserModel;
+
   console.log(`Text length: ${text.length} characters`);
   const summaries: string[] = [];
-  const chunks = splitText(text);
+  const chunks = splitText(text, currentModel);
 
   for (const chunk of chunks) {
     const messages: LLMMessage[] = isWebsite
@@ -135,7 +139,7 @@ async function summarizeText(text: string, isWebsite = true): Promise<string> {
 
     const summary = await callLLMChatCompletion(
       messages,
-      getConfig().models.plugins.browserModel,
+      currentModel,
       undefined /* temperature */,
       300 /* maxTokens */
     );
@@ -167,7 +171,7 @@ async function summarizeText(text: string, isWebsite = true): Promise<string> {
 
   const finalSummary = await callLLMChatCompletion(
     messages,
-    getConfig().models.plugins.browserModel,
+    currentModel,
     undefined /* temperature */,
     300 /* maxTokens */
   );
