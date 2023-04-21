@@ -91,6 +91,11 @@ const PLUGIN_INFOS: PluginGroupInfo[] = [
     description: "Browse the internet effortlessly with this powerful tool.",
   },
   {
+    emoji: "🔎",
+    name: "Search",
+    description: "Explore the web with DuckDuckGo search engine."
+  },
+  {
     emoji: "💻",
     name: "Code Crafter",
     description: "Generate code tailored to accomplish your goals",
