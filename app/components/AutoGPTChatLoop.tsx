@@ -18,13 +18,14 @@ import type {
   SystemInfoActivity,
 } from "~/types/Activity";
 import { useAutoGPTChat } from "~/hooks/useAutoGPTChat";
+import { useLangChainAutoGPT  } from "~/hooks/useLangChainAutoGPT";
 import { generateID } from "~/utils/generateID";
 
 export function AutoGPTChatLoop() {
   const [activities, setActivities] = useState<Activity[]>([]);
   const [isTaskCompleted, setIsTaskCompleted] = useState<boolean>(false);
 
-  const { isPaused, togglePause } = useAutoGPTChat(
+  const { isPaused, togglePause } = useLangChainAutoGPT(
     (activity) => setActivities((prevState) => [...prevState, activity]),
     () => setIsTaskCompleted(true)
   );

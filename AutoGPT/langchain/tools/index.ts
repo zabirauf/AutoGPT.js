@@ -1,0 +1,1 @@
+export { DuckDuckGoSerpAPI } from "./DuckDuckGoSerpAPI";

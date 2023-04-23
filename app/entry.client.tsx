@@ -2,7 +2,8 @@ import wasmBinary from '@dqbd/tiktoken/tiktoken_bg.wasm';
 import { AskFilePermission } from './components/AskFilePermission';
 import { createRoot, hydrateRoot } from 'react-dom/client';
 import { init } from '@dqbd/tiktoken/init';
-import { initBrowserCommandPlugins } from 'AutoGPT/commandPlugins/BrowserCommandPlugins';
+import { initBrowserCommandPlugins } from 'AutoGPT/utils/proxy';
+import { initBrowserFilesStoreDeps } from 'AutoGPT/langchain/stores/BrowserFilesStore';
 import { initFileOperationCommandPlugins } from 'AutoGPT/commandPlugins/FileOperationCommandPlugins';
 import { RemixBrowser } from '@remix-run/react';
 import { startTransition, StrictMode } from 'react';
@@ -16,6 +17,9 @@ init((imports) =>
   WebAssembly.instantiateStreaming(fetch(wasmBinary as any), imports)
 ).then(() => {
   initFileOperationCommandPlugins({
+    getDirectoryHandle,
+  });
+  initBrowserFilesStoreDeps({
     getDirectoryHandle,
   });
   initBrowserCommandPlugins({ callProxy });

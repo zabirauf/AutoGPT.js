@@ -1,41 +1,9 @@
 import { callLLMChatCompletion } from 'AutoGPT/utils/llmUtils';
+import { callProxyAndReturnFromDocument } from 'AutoGPT/utils/proxy';
 import { CommandPlugin } from './CommandPlugin';
 import { countStringTokens } from 'AutoGPT/utils/tokenCounter';
 import { getConfig } from 'AutoGPT/utils/config';
 import type { LLMMessage, LLMModel } from "AutoGPT/utils/types";
-
-let callProxyFn: (
-  url: string
-) => Promise<
-  { status: "ok"; text: string } | { status: "error"; error: string }
->;
-
-export function initBrowserCommandPlugins({
-  callProxy,
-}: {
-  callProxy: typeof callProxyFn;
-}) {
-  callProxyFn = callProxy;
-}
-
-async function callProxyAndReturnFromDocument<T>(
-  url: string,
-  getStringFromDocument: (doc: Document) => T
-) {
-  const response = await callProxyFn(url);
-  if (response.status === "error") {
-    return response.error;
-  }
-
-  try {
-    const respDom = new DOMParser();
-    const doc = await respDom.parseFromString(response.text, "text/html");
-    return getStringFromDocument(doc);
-  } catch (error) {
-    console.error("Error parsing HTML from website", error);
-    return "Error: Unable to parse website HTML";
-  }
-}
 
 function scrapText(url: string): Promise<string> {
   return callProxyAndReturnFromDocument(url, (doc) => doc.body.innerText);
@@ -87,7 +55,11 @@ function scrapSearchResults(query: string): Promise<string | string[]> {
   );
 }
 
-function* splitText(text: string, model: LLMModel, maxTokens = 3000): Generator<string> {
+function* splitText(
+  text: string,
+  model: LLMModel,
+  maxTokens = 3000
+): Generator<string> {
   const paragraphs = text.split("\n");
   let currentLength = 0;
   let currentChunk: string[] = [];
@@ -96,11 +68,11 @@ function* splitText(text: string, model: LLMModel, maxTokens = 3000): Generator<
     const tokensInParagraph = countStringTokens(paragraph, model);
     if (currentLength + tokensInParagraph <= maxTokens) {
       currentChunk.push(paragraph);
-      currentLength += tokensInParagraph
+      currentLength += tokensInParagraph;
     } else {
       yield currentChunk.join("\n");
       currentChunk = [paragraph];
-      currentLength = tokensInParagraph
+      currentLength = tokensInParagraph;
     }
   }
 
