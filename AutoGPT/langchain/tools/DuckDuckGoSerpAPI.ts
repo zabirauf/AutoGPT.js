@@ -34,7 +34,7 @@ export class DuckDuckGoSerpAPI extends Tool {
           } catch {}
         }
 
-        return resultsToReturn.join("\n\n");
+        return resultsToReturn.slice(0,3).join("\n\n");
       }
     );
   }
