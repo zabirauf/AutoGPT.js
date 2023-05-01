@@ -7,10 +7,11 @@ import { initBrowserFilesStoreDeps } from 'AutoGPT/langchain/stores/BrowserFiles
 import { initFileOperationCommandPlugins } from 'AutoGPT/commandPlugins/FileOperationCommandPlugins';
 import { RemixBrowser } from '@remix-run/react';
 import { startTransition, StrictMode } from 'react';
-/**
- * By default, Remix will handle hydrating your app on the client for you.
- * You are free to delete this file if you'd like to, but if you ever want it revealed again, you can run `npx remix reveal` ✨
- * For more information, see https://remix.run/docs/en/main/file-conventions/entry.client
+import '@dqbd/tiktoken';
+
+/*
+ * Importing @dqbd/tiktoken first as it does WASM initialization which doesn't work properly so we run that first
+ * and then run our custom logic of WebAssembly loading on client so WASM moduel is initialized correctly.
  */
 
 init((imports) =>

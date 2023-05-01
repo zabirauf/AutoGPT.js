@@ -9,11 +9,11 @@ import { MemoryVectorStore } from 'langchain/vectorstores/memory';
 import { OpenAIEmbeddings } from 'langchain/embeddings/openai';
 import { ReadFileTool, Tool, WriteFileTool } from 'langchain/tools';
 import {
-    useCallback,
-    useEffect,
-    useRef,
-    useState
-    } from 'react';
+  useCallback,
+  useEffect,
+  useRef,
+  useState
+  } from 'react';
 import {
   AutoGPTOutputParser,
   AutoGPTRawAction,
@@ -89,6 +89,7 @@ export function useLangChainAutoGPT(
   onTaskCompleted: () => void
 ) {
   const { aiInfo } = useAIState();
+  const isRunning = useRef(false);
   const [isPaused, setIsPaused] = useState<boolean>(false);
   const isPausedRef = useRef<boolean>(isPaused);
   const togglePause = useCallback(() => {
@@ -98,6 +99,10 @@ export function useLangChainAutoGPT(
   }, [isPaused]);
 
   useEffect(() => {
+    if (isRunning.current) {
+      return;
+    }
+    isRunning.current = true;
     const store = new BrowserFilesStore();
 
     const tools = [
@@ -127,12 +132,11 @@ export function useLangChainAutoGPT(
     autogpt.outputParser = new WrappedAutoGPTOutputParser(addActivity);
     autogpt.run(aiInfo.goals).then(() => {
       onTaskCompleted();
-    }).catch(() => {
+    }).catch(error => {
+        console.error("Running AutoGPT resuled in error", error);
         pauseableTool.stop();
         onTaskCompleted();
     });
-
-    return () => pauseableTool.stop();
   }, []);
 
   return { isPaused, togglePause };
