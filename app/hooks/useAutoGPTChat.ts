@@ -13,7 +13,7 @@ import { Activity } from "~/types/Activity";
 const USER_INPUT =
   "Determine which next command to use, and respond using the format specified above:";
 
-const RESPONSE_SCHEMA = "YAML" as const;
+const RESPONSE_SCHEMA = "JSON" as const;
 
 export function useAutoGPTChat(
   onActivity: (activity: Activity) => void,

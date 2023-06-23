@@ -9,6 +9,12 @@ const TaskCompleteCommandPlugins: CommandPlugin[] = [
     arguments: {
       reason: "reason",
     },
+    argumentsV2: {
+      required: ["reason"],
+      args: {
+        reason: { type: "string", description: "Reason of why the task is considered to be completed either due to goal completing or unable to complete"}
+      }
+    },
     execute: async (args) => {
       taskComplete = true;
       console.debug("Task complete", args["reason"]);

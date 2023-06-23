@@ -87,7 +87,11 @@ function scrapSearchResults(query: string): Promise<string | string[]> {
   );
 }
 
-function* splitText(text: string, model: LLMModel, maxTokens = 3000): Generator<string> {
+function* splitText(
+  text: string,
+  model: LLMModel,
+  maxTokens = 3000
+): Generator<string> {
   const paragraphs = text.split("\n");
   let currentLength = 0;
   let currentChunk: string[] = [];
@@ -96,11 +100,11 @@ function* splitText(text: string, model: LLMModel, maxTokens = 3000): Generator<
     const tokensInParagraph = countStringTokens(paragraph, model);
     if (currentLength + tokensInParagraph <= maxTokens) {
       currentChunk.push(paragraph);
-      currentLength += tokensInParagraph
+      currentLength += tokensInParagraph;
     } else {
       yield currentChunk.join("\n");
       currentChunk = [paragraph];
-      currentLength = tokensInParagraph
+      currentLength = tokensInParagraph;
     }
   }
 
@@ -185,6 +189,12 @@ const BrowserCommandPlugins: CommandPlugin[] = [
     arguments: {
       url: "url",
     },
+    argumentsV2: {
+      required: ["url"],
+      args: {
+        url: { type: "string", description: "The URL of the website to visit" },
+      },
+    },
     execute: async (args) => {
       const url = args["url"];
       const websiteText = await scrapText(url);
@@ -206,6 +216,12 @@ const BrowserCommandPlugins: CommandPlugin[] = [
     name: "Search internet",
     arguments: {
       query: "query",
+    },
+    argumentsV2: {
+      required: ["query"],
+      args: {
+        query: { type: "string", description: "The to search for" },
+      },
     },
     execute: async (args) => {
       const result = await scrapSearchResults(args["query"]);

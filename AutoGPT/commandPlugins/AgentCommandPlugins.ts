@@ -102,6 +102,22 @@ const AgentCommandPlugins: CommandPlugin[] = [
       prompt: "prompt",
       data: "data_for_prompt",
     },
+    argumentsV2: {
+      required: ["name", "task", "prompt", "data"],
+      args: {
+        name: { type: "string", description: "Name of the agent" },
+        task: {
+          type: "string",
+          description:
+            "Short description of what is the task that agent is going to perform",
+        },
+        prompt: { type: "string", description: "The prompt for the agent" },
+        data: {
+          type: "string",
+          description: "Data or context that agent should use",
+        },
+      },
+    },
     execute: (args) =>
       startAgent(
         args["name"],
@@ -119,12 +135,27 @@ const AgentCommandPlugins: CommandPlugin[] = [
       message: "message",
       data: "data_for_message",
     },
+    argumentsV2: {
+      required: ["key", "message", "data"],
+      args: {
+        key: { type: "int", description: "The key of the agent to delete" },
+        message: { type: "string", description: "The message for the agent" },
+        data: {
+          type: "string",
+          description: "Data or context that agent should use",
+        },
+      },
+    },
     execute: (args) => messageAgent(args["key"], args["message"], args["data"]),
   },
   {
     command: "list_agents",
     name: "List GPT Agents",
     arguments: {},
+    argumentsV2: {
+      required: [],
+      args: {},
+    },
     execute: async (args) => JSON.stringify(listAgents()),
   },
   {
@@ -132,6 +163,12 @@ const AgentCommandPlugins: CommandPlugin[] = [
     name: "Delete GPT Agent",
     arguments: {
       key: "key",
+    },
+    argumentsV2: {
+      required: ["key"],
+      args: {
+        key: { type: "int", description: "The key of the agent to delete" },
+      },
     },
     execute: async (args) =>
       deleteAgent(args["key"])

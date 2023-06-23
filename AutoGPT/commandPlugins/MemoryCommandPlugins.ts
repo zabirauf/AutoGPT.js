@@ -42,6 +42,12 @@ const MemoryCommandPlugins: CommandPlugin[] = [
     arguments: {
       string: "string",
     },
+    argumentsV2: {
+      required: ["string"],
+      args: {
+        string: { type: "string", description: "The content to add to memory" },
+      },
+    },
     execute: async (args) => commitMemory(args["string"]),
   },
   {
@@ -49,6 +55,15 @@ const MemoryCommandPlugins: CommandPlugin[] = [
     name: "Memory Delete",
     arguments: {
       key: "key",
+    },
+    argumentsV2: {
+      required: ["key"],
+      args: {
+        key: {
+          type: "int",
+          description: "The key of the previously added memory to delete",
+        },
+      },
     },
     execute: async (args) => deleteMemory(parseInt(args["key"])),
   },
@@ -58,6 +73,16 @@ const MemoryCommandPlugins: CommandPlugin[] = [
     arguments: {
       key: "key",
       string: "string",
+    },
+    argumentsV2: {
+      required: ["key", "string"],
+      args: {
+        key: {
+          type: "int",
+          description: "The key of the memory to override",
+        },
+        string: { type: "string", description: "The content to add to memory" },
+      },
     },
     execute: async (args) =>
       overwriteMemory(parseInt(args["key"]), args["string"]),
