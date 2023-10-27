@@ -119,7 +119,7 @@ export function AIGoalsForm() {
     setupDispatcher("prev_stage");
   }, []);
 
-  const gpt35Model: LLMModel = "gpt-3.5-turbo";
+  const gpt35Model: LLMModel = "gpt-3.5-turbo-16k";
   const gpt4model: LLMModel = "gpt-4";
 
   return (
@@ -161,7 +161,6 @@ export function AIGoalsForm() {
               defaultValue={getConfig().models.mainLoopModel}
               ref={modelSelectorRef}
             >
-              <option value={gpt35Model}>🐇 GPT 3.5-turbo</option>
               <option value={gpt4model}>🐢 GPT 4</option>
             </select>
           </div>

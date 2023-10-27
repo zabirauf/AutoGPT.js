@@ -1,6 +1,10 @@
-import { callLLMChatCompletion } from './llmUtils';
+import {
+  callLLMChatCompletion,
+  CallLLMChatCompletionArgs,
+  CallLLMChatCompletionResponse,
+  CallLLMChatCompletionResponseStatus
+  } from './llmUtils';
 import { countMessageTokens } from './tokenCounter';
-import { getConfig } from './config';
 import type { LLMMessage, LLMModel } from "./types";
 
 interface ChatWithAiArgs {
@@ -11,6 +15,7 @@ interface ChatWithAiArgs {
   permanentMemory: string[];
   tokenLimit: number;
   model: LLMModel;
+  functions?: CallLLMChatCompletionArgs["functions"]
   debug?: boolean;
 }
 
@@ -22,8 +27,9 @@ export async function chatWithAI({
   permanentMemory,
   tokenLimit,
   model,
+  functions,
   debug = false,
-}: ChatWithAiArgs): Promise<string> {
+}: ChatWithAiArgs): Promise<CallLLMChatCompletionResponse> {
   try {
     const sendTokenLimit = tokenLimit - 1000;
 
@@ -81,18 +87,18 @@ export async function chatWithAI({
       console.log("----------- END OF CONTEXT ----------------");
     }
 
-    const assistantReply = await callLLMChatCompletion(
-      currentContext,
+    const assistantReply = await callLLMChatCompletion({
+      messages: currentContext,
+      functions,
       model,
-      undefined /* temperature */,
-      tokensRemaining
-    );
+      maxTokens: tokensRemaining,
+    });
 
     appendToFullMessageHistory([
       { role: "user", content: userInput },
       {
         role: "assistant",
-        content: assistantReply,
+        content: assistantReply.status === CallLLMChatCompletionResponseStatus.Success ? assistantReply.content : assistantReply.message,
       },
     ]);
 

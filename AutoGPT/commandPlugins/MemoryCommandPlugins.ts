@@ -60,7 +60,7 @@ const MemoryCommandPlugins: CommandPlugin[] = [
       required: ["key"],
       args: {
         key: {
-          type: "int",
+          type: "integer",
           description: "The key of the previously added memory to delete",
         },
       },
@@ -78,7 +78,7 @@ const MemoryCommandPlugins: CommandPlugin[] = [
       required: ["key", "string"],
       args: {
         key: {
-          type: "int",
+          type: "integer",
           description: "The key of the memory to override",
         },
         string: { type: "string", description: "The content to add to memory" },

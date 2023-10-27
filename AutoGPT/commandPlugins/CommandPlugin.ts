@@ -1,7 +1,7 @@
 export type CommandExecArgs = { [key: string]: any };
 
 type StringExecArg = { type: "string" };
-type IntExecArg = { type: "int" };
+type IntExecArg = { type: "integer" };
 type BoolExecArg = { type: "boolean" };
 type ArrayExecArg = { type: "array"; items: ExecArgType };
 type EnumExecArg = { type: "string"; enum: string[] };

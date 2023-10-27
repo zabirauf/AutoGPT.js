@@ -2,12 +2,12 @@ import type { AutoGPTConfig, LLMModel } from "./types";
 
 const DEFAULT_CONFIG: AutoGPTConfig = {
   models: {
-    mainLoopModel: "gpt-3.5-turbo",
-    schemaFixingModel: "gpt-3.5-turbo",
+    mainLoopModel: "gpt-4",
+    schemaFixingModel: "gpt-4",
     plugins: {
-      agentModel: "gpt-3.5-turbo",
-      browserModel: "gpt-3.5-turbo",
-      codeCreationModel: "gpt-3.5-turbo",
+      agentModel: "gpt-3.5-turbo-16k",
+      browserModel: "gpt-3.5-turbo-16k",
+      codeCreationModel: "gpt-4",
     },
   },
 };

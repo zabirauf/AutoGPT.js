@@ -1,4 +1,4 @@
-import { callLLMChatCompletion } from 'AutoGPT/utils/llmUtils';
+import { callLLMChatCompletion, CallLLMChatCompletionResponseStatus } from 'AutoGPT/utils/llmUtils';
 import { CommandPlugin } from './CommandPlugin';
 import { countStringTokens } from 'AutoGPT/utils/tokenCounter';
 import { getConfig } from 'AutoGPT/utils/config';
@@ -141,14 +141,13 @@ async function summarizeText(text: string, isWebsite = true): Promise<string> {
           },
         ];
 
-    const summary = await callLLMChatCompletion(
+    const summary = await callLLMChatCompletion({
       messages,
-      currentModel,
-      undefined /* temperature */,
-      300 /* maxTokens */
-    );
+      model: currentModel,
+      maxTokens: 300,
+    });
 
-    summaries.push(summary);
+    summaries.push(summary.status === CallLLMChatCompletionResponseStatus.Success ? summary.content : "error");
   }
 
   if (summaries.length === 1) {
@@ -173,13 +172,12 @@ async function summarizeText(text: string, isWebsite = true): Promise<string> {
         },
       ];
 
-  const finalSummary = await callLLMChatCompletion(
+  const finalSummary = await callLLMChatCompletion({
     messages,
-    currentModel,
-    undefined /* temperature */,
-    300 /* maxTokens */
-  );
-  return finalSummary;
+    model: currentModel,
+    maxTokens: 300,
+  });
+  return finalSummary.status === CallLLMChatCompletionResponseStatus.Success ? finalSummary.content : "error";
 }
 
 const BrowserCommandPlugins: CommandPlugin[] = [
