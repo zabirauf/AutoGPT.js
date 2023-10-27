@@ -1,19 +1,22 @@
+import { addThoughtArgsToSchema, getFunctionSchema } from 'AutoGPT/utils/functionsSchema';
+import { CallLLMChatCompletionResponseStatus } from 'AutoGPT/utils/llmUtils';
 import { chatWithAI } from 'AutoGPT/utils/chat';
-import { executeCommand, getCommand } from 'AutoGPT/commandPlugins/index';
-import { generatePrompt } from 'AutoGPT/utils/prompt';
+import { executeCommand } from 'AutoGPT/commandPlugins/index';
+import { generatePrompt } from 'AutoGPT/utils/promptV2';
 import { permanentMemory } from 'AutoGPT/commandPlugins/MemoryCommandPlugins';
-import { useCallback } from 'react';
-import { useEffect, useRef, useState } from 'react';
-import type { LLMMessage, LLMModel } from "AutoGPT/utils/types";
+import {
+  useCallback,
+  useEffect,
+  useRef,
+  useState
+  } from 'react';
+import type { AIResponseSchema, LLMMessage, LLMModel } from "AutoGPT/utils/types";
 import { useAIState } from "~/components/AIStateProvider";
-import type { AIResponseSchema } from "AutoGPT/utils/types";
 import { generateID } from "~/utils/generateID";
-import { Activity } from "~/types/Activity";
+import type { Activity } from "~/types/Activity";
 
 const USER_INPUT =
-  "Determine which next command to use, and respond using the format specified above:";
-
-const RESPONSE_SCHEMA = "YAML" as const;
+  "Determine which function to call.";
 
 export function useAutoGPTChat(
   onActivity: (activity: Activity) => void,
@@ -60,12 +63,13 @@ export function useAutoGPTChat(
       id: generateID(),
     });
     chatWithAI({
-      prompt: generatePrompt(name, description, goals, RESPONSE_SCHEMA),
+      prompt: generatePrompt(name, description, goals),
       fullMessageHistory: fullMessageHistory.current,
       appendToFullMessageHistory,
       permanentMemory,
       tokenLimit: 4000,
       model: model as LLMModel,
+      functions: addThoughtArgsToSchema(getFunctionSchema()),
       userInput: userInput.current,
       debug: true,
     })
@@ -75,18 +79,27 @@ export function useAutoGPTChat(
         let rawParsedResponse: AIResponseSchema | undefined = undefined;
 
         try {
-          const commandResult = await getCommand(
-            assistantReply,
-            RESPONSE_SCHEMA
-          );
-          commandName = commandResult.commandName;
-          args = commandResult.argumentsObj;
-          rawParsedResponse = commandResult.rawParsedResponse;
+          if (assistantReply.status === CallLLMChatCompletionResponseStatus.Success) {
+            commandName = assistantReply.functionCall?.name ?? "error";
+            args = assistantReply.functionCall?.arguments ?? {};
+            rawParsedResponse = {
+              command: {
+                name: assistantReply.functionCall?.name!,
+                args: assistantReply.functionCall?.arguments || {}
+              },
+              thoughts: {
+                reasoning: assistantReply.functionCall?.arguments["_reasoning"],
+                criticism: assistantReply.functionCall?.arguments["_criticism"],
+                plan: assistantReply.functionCall?.arguments["_plan"],
+                text: assistantReply.functionCall?.arguments["_thought"]
+              }
+            };
+          }
         } catch (error) {
           console.error("Error when getting command", error);
         }
 
-        userInput.current = `GENERATE NEXT COMMAND ${RESPONSE_SCHEMA}`;
+        userInput.current = `GENERATE NEXT FUNCTION`;
 
         let result: string;
         if (commandName.toLowerCase() != "error" && typeof args !== "string") {

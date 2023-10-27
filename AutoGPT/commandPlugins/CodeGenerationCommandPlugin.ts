@@ -1,6 +1,6 @@
 import { callAIFunction } from 'AutoGPT/utils/llmUtils';
-import { CommandPlugin } from './CommandPlugin';
 import { getConfig } from 'AutoGPT/utils/config';
+import type { CommandPlugin } from './CommandPlugin';
 
 async function createCode(descriptionOfCode: string): Promise<string> {
   const functionString = "function createCode(description: string): string {";
@@ -78,6 +78,15 @@ const CodeGenerationCommandPlugin: CommandPlugin[] = [
     arguments: {
       description: "description_of_code_to_create",
     },
+    argumentsV2: {
+      required: ["description"],
+      args: {
+        description: {
+          type: "string",
+          description: "Description of the code to create",
+        },
+      },
+    },
     execute: (args) => createCode(args["description"]),
   },
   {
@@ -85,6 +94,15 @@ const CodeGenerationCommandPlugin: CommandPlugin[] = [
     name: "Evaluate Code",
     arguments: {
       code: "full_code_string",
+    },
+    argumentsV2: {
+      required: ["code"],
+      args: {
+        code: {
+          type: "string",
+          description: "Full code to evalute the result for",
+        },
+      },
     },
     execute: (args) => evaluateCode(args["code"]),
   },
@@ -95,6 +113,18 @@ const CodeGenerationCommandPlugin: CommandPlugin[] = [
       suggestions: "list_of_suggestions",
       code: "full_code_string",
     },
+    argumentsV2: {
+      required: ["suggestions", "code"],
+      args: {
+        code: { type: "string", description: "Full code to improve" },
+        suggestions: {
+          type: "array",
+          items: { type: "string" },
+          description:
+            "List of suggestion which will be used to improve the code",
+        },
+      },
+    },
     execute: (args) => improveCode(args["suggestions"], args["code"]),
   },
   {
@@ -103,6 +133,16 @@ const CodeGenerationCommandPlugin: CommandPlugin[] = [
     arguments: {
       code: "full_code_string",
       focus: "list_of_focus_areas",
+    },
+    argumentsV2: {
+      required: ["focus", "code"],
+      args: {
+        code: { type: "string", description: "Full code to test" },
+        focus: {
+          type: "string",
+          description: "List of focus areas for the test",
+        },
+      },
     },
     execute: (args) => writeTests(args["code"], args["focus"]),
   },

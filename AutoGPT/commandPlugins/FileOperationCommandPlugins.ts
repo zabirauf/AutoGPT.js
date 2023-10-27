@@ -1,4 +1,4 @@
-import { CommandPlugin } from './CommandPlugin';
+import type { CommandPlugin } from './CommandPlugin';
 
 let directoryHandle: FileSystemDirectoryHandle | null = null;
 let getDirectoryHandleFn: () => Promise<FileSystemDirectoryHandle | null>;
@@ -92,6 +92,13 @@ const FileOperationCommandPlugins: CommandPlugin[] = [
       file: "file",
       text: "text",
     },
+    argumentsV2: {
+      args: {
+        file: { type: "string", description: "Name of the file to create" },
+        text: { type: "string", description: "Content of the file" },
+      },
+      required: ["file", "text"],
+    },
     execute: (args) => writeToFile(args["file"], args["text"]),
   },
   {
@@ -99,6 +106,12 @@ const FileOperationCommandPlugins: CommandPlugin[] = [
     name: "Read file",
     arguments: {
       file: "file",
+    },
+    argumentsV2: {
+      args: {
+        file: { type: "string", description: "Name of the file to read" },
+      },
+      required: ["file"],
     },
     execute: (args) => readFile(args["file"]),
   },
@@ -109,6 +122,16 @@ const FileOperationCommandPlugins: CommandPlugin[] = [
       file: "file",
       text: "text",
     },
+    argumentsV2: {
+      args: {
+        file: {
+          type: "string",
+          description: "Name of previously created file to append to",
+        },
+        text: { type: "string", description: "Content to append to file" },
+      },
+      required: ["file", "text"],
+    },
     execute: (args) => appendToFile(args["file"], args["text"]),
   },
   {
@@ -116,6 +139,12 @@ const FileOperationCommandPlugins: CommandPlugin[] = [
     name: "Delete file",
     arguments: {
       file: "file",
+    },
+    argumentsV2: {
+      args: {
+        file: { type: "string", description: "Name of file to delete" },
+      },
+      required: ["file"],
     },
     execute: (args) => deleteFile(args["file"]),
   },

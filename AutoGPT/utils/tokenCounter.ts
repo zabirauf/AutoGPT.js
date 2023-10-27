@@ -7,12 +7,10 @@ export function countMessageTokens(
   messages: LLMMessage[],
   model: LLMModel
 ): number {
-  const encoding = encoding_for_model(model as TiktokenModel);
-
   let tokensPerMessage = 0;
   let tokensPerName = 0;
 
-  if (model === "gpt-3.5-turbo") {
+  if (model === "gpt-3.5-turbo-16k" || model === "gpt-3.5-turbo") {
     return countMessageTokens(messages, "gpt-3.5-turbo-0301");
   } else if (model === "gpt-3.5-turbo-0301") {
     tokensPerMessage = 4;
@@ -24,6 +22,7 @@ export function countMessageTokens(
     assertNever(model);
   }
 
+  const encoding = encoding_for_model(model as TiktokenModel);
   let numTokens = 0;
   for (const message of messages) {
     numTokens += tokensPerMessage;
@@ -42,6 +41,10 @@ export function countMessageTokens(
 }
 
 export function countStringTokens(str: string, model: LLMModel): number {
+  if (model === "gpt-3.5-turbo-16k") {
+    model = "gpt-3.5-turbo";
+  }
+
   const encoding = encoding_for_model(model as TiktokenModel);
   const len = encoding.encode(str).length;
   encoding.free();

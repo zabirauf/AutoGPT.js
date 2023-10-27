@@ -1,4 +1,4 @@
-import { CommandPlugin } from './CommandPlugin';
+import type { CommandPlugin } from './CommandPlugin';
 
 export const permanentMemory: string[] = [];
 
@@ -8,13 +8,6 @@ function commitMemory(val: string) {
   return `Committing memory with key ${
     permanentMemory.length - 1
   } and string "${val}"`;
-}
-
-function getMemory(index: number) {
-  if (index >= permanentMemory.length) {
-    return "Invalid key, cannot retrieve memory.";
-  }
-  return permanentMemory[index];
 }
 
 function deleteMemory(index: number) {
@@ -42,6 +35,12 @@ const MemoryCommandPlugins: CommandPlugin[] = [
     arguments: {
       string: "string",
     },
+    argumentsV2: {
+      required: ["string"],
+      args: {
+        string: { type: "string", description: "The content to add to memory" },
+      },
+    },
     execute: async (args) => commitMemory(args["string"]),
   },
   {
@@ -49,6 +48,15 @@ const MemoryCommandPlugins: CommandPlugin[] = [
     name: "Memory Delete",
     arguments: {
       key: "key",
+    },
+    argumentsV2: {
+      required: ["key"],
+      args: {
+        key: {
+          type: "integer",
+          description: "The key of the previously added memory to delete",
+        },
+      },
     },
     execute: async (args) => deleteMemory(parseInt(args["key"])),
   },
@@ -58,6 +66,16 @@ const MemoryCommandPlugins: CommandPlugin[] = [
     arguments: {
       key: "key",
       string: "string",
+    },
+    argumentsV2: {
+      required: ["key", "string"],
+      args: {
+        key: {
+          type: "integer",
+          description: "The key of the memory to override",
+        },
+        string: { type: "string", description: "The content to add to memory" },
+      },
     },
     execute: async (args) =>
       overwriteMemory(parseInt(args["key"]), args["string"]),

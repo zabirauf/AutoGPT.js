@@ -1,7 +1,7 @@
-import { callLLMChatCompletion } from 'AutoGPT/utils/llmUtils';
-import { CommandPlugin } from './CommandPlugin';
+import { callLLMChatCompletion, CallLLMChatCompletionResponseStatus } from 'AutoGPT/utils/llmUtils';
 import { countStringTokens } from 'AutoGPT/utils/tokenCounter';
 import { getConfig } from 'AutoGPT/utils/config';
+import type { CommandPlugin } from './CommandPlugin';
 import type { LLMMessage, LLMModel } from "AutoGPT/utils/types";
 
 let callProxyFn: (
@@ -87,7 +87,11 @@ function scrapSearchResults(query: string): Promise<string | string[]> {
   );
 }
 
-function* splitText(text: string, model: LLMModel, maxTokens = 3000): Generator<string> {
+function* splitText(
+  text: string,
+  model: LLMModel,
+  maxTokens = 3000
+): Generator<string> {
   const paragraphs = text.split("\n");
   let currentLength = 0;
   let currentChunk: string[] = [];
@@ -96,11 +100,11 @@ function* splitText(text: string, model: LLMModel, maxTokens = 3000): Generator<
     const tokensInParagraph = countStringTokens(paragraph, model);
     if (currentLength + tokensInParagraph <= maxTokens) {
       currentChunk.push(paragraph);
-      currentLength += tokensInParagraph
+      currentLength += tokensInParagraph;
     } else {
       yield currentChunk.join("\n");
       currentChunk = [paragraph];
-      currentLength = tokensInParagraph
+      currentLength = tokensInParagraph;
     }
   }
 
@@ -137,14 +141,13 @@ async function summarizeText(text: string, isWebsite = true): Promise<string> {
           },
         ];
 
-    const summary = await callLLMChatCompletion(
+    const summary = await callLLMChatCompletion({
       messages,
-      currentModel,
-      undefined /* temperature */,
-      300 /* maxTokens */
-    );
+      model: currentModel,
+      maxTokens: 300,
+    });
 
-    summaries.push(summary);
+    summaries.push(summary.status === CallLLMChatCompletionResponseStatus.Success ? summary.content : "error");
   }
 
   if (summaries.length === 1) {
@@ -169,13 +172,12 @@ async function summarizeText(text: string, isWebsite = true): Promise<string> {
         },
       ];
 
-  const finalSummary = await callLLMChatCompletion(
+  const finalSummary = await callLLMChatCompletion({
     messages,
-    currentModel,
-    undefined /* temperature */,
-    300 /* maxTokens */
-  );
-  return finalSummary;
+    model: currentModel,
+    maxTokens: 300,
+  });
+  return finalSummary.status === CallLLMChatCompletionResponseStatus.Success ? finalSummary.content : "error";
 }
 
 const BrowserCommandPlugins: CommandPlugin[] = [
@@ -184,6 +186,12 @@ const BrowserCommandPlugins: CommandPlugin[] = [
     name: "Browse Website",
     arguments: {
       url: "url",
+    },
+    argumentsV2: {
+      required: ["url"],
+      args: {
+        url: { type: "string", description: "The URL of the website to visit" },
+      },
     },
     execute: async (args) => {
       const url = args["url"];
@@ -206,6 +214,12 @@ const BrowserCommandPlugins: CommandPlugin[] = [
     name: "Search internet",
     arguments: {
       query: "query",
+    },
+    argumentsV2: {
+      required: ["query"],
+      args: {
+        query: { type: "string", description: "The to search for" },
+      },
     },
     execute: async (args) => {
       const result = await scrapSearchResults(args["query"]);

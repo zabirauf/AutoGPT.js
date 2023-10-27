@@ -1,15 +1,52 @@
 import { getAPIKey } from './apiKey';
-import type { LLMMessage, LLMModel } from './types';
+import type { LLMMessage, LLMModel } from "./types";
 
-export async function callLLMChatCompletion(
-  messages: LLMMessage[],
-  model: LLMModel,
-  temperature?: number,
-  maxTokens?: number
-) {
+export interface CallLLMChatCompletionArgs {
+  messages: LLMMessage[];
+  model: LLMModel;
+  functions?: {
+    name: string;
+    description: string;
+    parameters: { [key: string]: any };
+  }[];
+  temperature?: number;
+  maxTokens?: number;
+}
+
+export enum CallLLMChatCompletionResponseStatus {
+  Success,
+  Error,
+}
+export interface CallLLMChatCompletionResponseSuccess {
+  status: CallLLMChatCompletionResponseStatus.Success;
+  content: string;
+  functionCall?: {
+    name: string;
+    arguments: { [key: string]: any };
+  };
+}
+
+export interface CallLLMChatCompletionResponseError {
+  status: CallLLMChatCompletionResponseStatus.Error;
+  message: string;
+}
+
+export type CallLLMChatCompletionResponse =
+  | CallLLMChatCompletionResponseSuccess
+  | CallLLMChatCompletionResponseError;
+
+export async function callLLMChatCompletion({
+  messages,
+  functions,
+  model,
+  temperature,
+  maxTokens,
+}: CallLLMChatCompletionArgs): Promise<CallLLMChatCompletionResponse> {
   const reqBody = {
     model,
     messages,
+    functions,
+    function_call: functions ? "auto" : undefined,
     temperature,
     max_tokens: maxTokens,
   };
@@ -29,12 +66,26 @@ export async function callLLMChatCompletion(
   if (response.status !== 200) {
     const errorText = await response.text();
     console.error("Error calling OpenAI service", response.status, errorText);
-    return `Error calling API with status code ${response.status} and message "${errorText}"`;
+    return {
+      status: CallLLMChatCompletionResponseStatus.Error,
+      message: `Error calling API with status code ${response.status} and message "${errorText}"`,
+    };
   }
 
   const resBody = await response.json();
 
-  return resBody.choices[0].message.content as string;
+  return {
+    status: CallLLMChatCompletionResponseStatus.Success,
+    content: resBody.choices[0].message.content as string,
+    functionCall: resBody.choices[0].message.function_call
+      ? {
+          name: resBody.choices[0].message.function_call.name,
+          arguments: JSON.parse(
+            resBody.choices[0].message.function_call.arguments as string
+          ),
+        }
+      : undefined,
+  };
 }
 
 export interface CallAIFunctionArgs {
@@ -48,7 +99,7 @@ export async function callAIFunction({
   function: aiFunction,
   args,
   description,
-  model
+  model,
 }: CallAIFunctionArgs): Promise<string> {
   args = args.map((arg) =>
     arg !== null && arg !== undefined ? `${String(arg)}` : "None"
@@ -63,7 +114,13 @@ export async function callAIFunction({
     { role: "user", content: argsString },
   ];
 
-  const response = callLLMChatCompletion(messages, model, 0 /* temperature */);
+  const response = await callLLMChatCompletion({
+    messages,
+    model,
+    temperature: 0.7,
+  });
 
-  return response;
+  return response.status === CallLLMChatCompletionResponseStatus.Success
+    ? response.content
+    : "";
 }

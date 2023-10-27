@@ -43,6 +43,7 @@ export function HowToUseWithTokenRequest() {
             <a
               href="https://platform.openai.com/account/api-keys"
               target="_blank"
+              rel="noreferrer"
               className="text-blue-600 underline underline-offset-1"
             >
               OpenAI

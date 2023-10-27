@@ -1,8 +1,8 @@
-import { Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline';
 import { Dialog } from '@headlessui/react';
 import { GitHubBadge } from './GitHubBadge';
 import { TweetShare } from './TweetShare';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
+import { XMarkIcon } from '@heroicons/react/24/outline';
 
 export function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);

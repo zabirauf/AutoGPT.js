@@ -36,7 +36,7 @@ async function getDirectoryHandle(): Promise<FileSystemDirectoryHandle | null> {
     const root = createRoot(containerElement);
     let directoryHandle: FileSystemDirectoryHandle | null = null;
     const onUserApprovedPermission = async () => {
-      if (!!window.showDirectoryPicker) {
+      if (window.showDirectoryPicker) {
         directoryHandle = await window.showDirectoryPicker();
       } else {
         // If the user directory picker is not available then fallback to using

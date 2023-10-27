@@ -1,6 +1,9 @@
-import { callLLMChatCompletion } from 'AutoGPT/utils/llmUtils';
-import { CommandPlugin } from './CommandPlugin';
 import { getConfig } from 'AutoGPT/utils/config';
+import type { CommandPlugin } from './CommandPlugin';
+import {
+  callLLMChatCompletion,
+  CallLLMChatCompletionResponseStatus,
+} from "AutoGPT/utils/llmUtils";
 import type { LLMMessage, LLMModel } from "AutoGPT/utils/types";
 
 interface Agent {
@@ -21,7 +24,7 @@ async function startAgent(
   model: LLMModel
 ) {
   const firstMessage = `You are ${name}. Respond with: "Acknowledged".`;
-  const { key, agentReply } = await createAgent(
+  const { key } = await createAgent(
     name,
     task,
     firstMessage,
@@ -41,9 +44,15 @@ async function createAgent(
 ): Promise<{ key: string; agentReply: string }> {
   const messages: LLMMessage[] = [{ role: "user", content: prompt }];
 
-  const agentReply = await callLLMChatCompletion(messages, model);
+  const agentReply = await callLLMChatCompletion({ messages, model });
 
-  messages.push({ role: "assistant", content: agentReply });
+  messages.push({
+    role: "assistant",
+    content:
+      agentReply.status === CallLLMChatCompletionResponseStatus.Success
+        ? agentReply.content
+        : "error",
+  });
 
   const agent: Agent = {
     name,
@@ -56,7 +65,13 @@ async function createAgent(
 
   agents[key] = agent;
 
-  return { key, agentReply };
+  return {
+    key,
+    agentReply:
+      agentReply.status === CallLLMChatCompletionResponseStatus.Success
+        ? agentReply.content
+        : "error",
+  };
 }
 
 async function messageAgent(
@@ -73,10 +88,10 @@ async function messageAgent(
     content: `|Start of data|\n${data}\n|End of data|\n\n${message}`,
   });
 
-  const agentReply = await callLLMChatCompletion(messages, model);
+  const agentReply = await callLLMChatCompletion({ messages, model });
 
-  messages.push({ role: "assistant", content: agentReply });
-  return agentReply;
+  messages.push({ role: "assistant", content: agentReply.status === CallLLMChatCompletionResponseStatus.Success ? agentReply.content : "error" });
+  return agentReply.status === CallLLMChatCompletionResponseStatus.Success ? agentReply.content : "error";
 }
 
 function listAgents(): [string, string][] {
@@ -102,6 +117,22 @@ const AgentCommandPlugins: CommandPlugin[] = [
       prompt: "prompt",
       data: "data_for_prompt",
     },
+    argumentsV2: {
+      required: ["name", "task", "prompt", "data"],
+      args: {
+        name: { type: "string", description: "Name of the agent" },
+        task: {
+          type: "string",
+          description:
+            "Short description of what is the task that agent is going to perform",
+        },
+        prompt: { type: "string", description: "The prompt for the agent" },
+        data: {
+          type: "string",
+          description: "Data or context that agent should use",
+        },
+      },
+    },
     execute: (args) =>
       startAgent(
         args["name"],
@@ -119,12 +150,27 @@ const AgentCommandPlugins: CommandPlugin[] = [
       message: "message",
       data: "data_for_message",
     },
+    argumentsV2: {
+      required: ["key", "message", "data"],
+      args: {
+        key: { type: "integer", description: "The key of the agent to delete" },
+        message: { type: "string", description: "The message for the agent" },
+        data: {
+          type: "string",
+          description: "Data or context that agent should use",
+        },
+      },
+    },
     execute: (args) => messageAgent(args["key"], args["message"], args["data"]),
   },
   {
     command: "list_agents",
     name: "List GPT Agents",
     arguments: {},
+    argumentsV2: {
+      required: [],
+      args: {},
+    },
     execute: async (args) => JSON.stringify(listAgents()),
   },
   {
@@ -132,6 +178,12 @@ const AgentCommandPlugins: CommandPlugin[] = [
     name: "Delete GPT Agent",
     arguments: {
       key: "key",
+    },
+    argumentsV2: {
+      required: ["key"],
+      args: {
+        key: { type: "integer", description: "The key of the agent to delete" },
+      },
     },
     execute: async (args) =>
       deleteAgent(args["key"])

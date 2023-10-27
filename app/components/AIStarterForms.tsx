@@ -1,4 +1,4 @@
-import { getConfig, updatePartialConfig } from 'AutoGPT/utils/config';
+import { getConfig } from 'AutoGPT/utils/config';
 import { useAIState, useAIStateDispatcher } from './AIStateProvider';
 import { useCallback, useRef } from 'react';
 import type { LLMModel } from "AutoGPT/utils/types";
@@ -22,11 +22,11 @@ export function AIInfoForm() {
     }
 
     setupDispatcher("next_stage");
-  }, []);
+  }, [setupDispatcher, aiInfoDispatcher]);
 
   const onBackButtonClicked = useCallback(() => {
     setupDispatcher("prev_stage");
-  }, []);
+  }, [setupDispatcher]);
 
   return (
     <div className="bg-white shadow sm:w-96 sm:rounded-lg">
@@ -113,13 +113,12 @@ export function AIGoalsForm() {
     }
 
     setupDispatcher("next_stage");
-  }, []);
+  }, [aiInfoDispatcher, setupDispatcher]);
 
   const onBackButtonClicked = useCallback(() => {
     setupDispatcher("prev_stage");
-  }, []);
+  }, [setupDispatcher]);
 
-  const gpt35Model: LLMModel = "gpt-3.5-turbo";
   const gpt4model: LLMModel = "gpt-4";
 
   return (
@@ -161,7 +160,6 @@ export function AIGoalsForm() {
               defaultValue={getConfig().models.mainLoopModel}
               ref={modelSelectorRef}
             >
-              <option value={gpt35Model}>🐇 GPT 3.5-turbo</option>
               <option value={gpt4model}>🐢 GPT 4</option>
             </select>
           </div>

@@ -163,7 +163,7 @@ function aiInfoReducer(
   } else if (action.type === "set_model") {
     const modelToSelect: LLMModel =
       action.model === "gpt-3.5-turbo" || action.model === "gpt-3.5-turbo-0301"
-        ? "gpt-3.5-turbo"
+        ? "gpt-3.5-turbo-16k"
         : "gpt-4";
     const modelConfig = getModelConfigWithModel(modelToSelect);
     updatePartialConfig({ models: modelConfig });
