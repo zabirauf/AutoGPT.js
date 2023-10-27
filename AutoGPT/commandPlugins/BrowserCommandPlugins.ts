@@ -1,7 +1,7 @@
 import { callLLMChatCompletion, CallLLMChatCompletionResponseStatus } from 'AutoGPT/utils/llmUtils';
-import { CommandPlugin } from './CommandPlugin';
 import { countStringTokens } from 'AutoGPT/utils/tokenCounter';
 import { getConfig } from 'AutoGPT/utils/config';
+import type { CommandPlugin } from './CommandPlugin';
 import type { LLMMessage, LLMModel } from "AutoGPT/utils/types";
 
 let callProxyFn: (

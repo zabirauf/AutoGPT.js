@@ -1,4 +1,4 @@
-import { CommandPlugin } from './CommandPlugin';
+import type { CommandPlugin } from './CommandPlugin';
 
 let directoryHandle: FileSystemDirectoryHandle | null = null;
 let getDirectoryHandleFn: () => Promise<FileSystemDirectoryHandle | null>;

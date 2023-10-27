@@ -1,12 +1,7 @@
 import { ChatBubbleLeftEllipsisIcon } from '@heroicons/react/20/solid';
 import { PauseButton, ResumeButton } from './Buttons';
-import {
-  PropsWithChildren,
-  useEffect,
-  useMemo,
-  useState
-  } from 'react';
 import { Spinner } from './LoadingSpinner';
+import { type PropsWithChildren, useMemo, useState } from 'react';
 import { assertNever } from "~/utils/asserts";
 import type {
   Activity,
@@ -144,8 +139,8 @@ function ChatCommandActivityComponent({ activity, children }: ChatCommandActivit
                   .split("\n")
                   .map((s) => s.replaceAll("- ", ""))
                   .filter((s) => !!s && s!=="")
-                  .map((s) => (
-                    <li>{s}</li>
+                  .map((s, index) => (
+                    <li key={index}>{s}</li>
                   ))}
               </ul>
             </InfoRow>
@@ -168,8 +163,8 @@ function ChatCommandExecutedActivityComponent({
       <div className="border-t border-gray-200 px-4 py-5 sm:p-0">
         <dl className="sm:divide-y sm:divide-gray-200">
           <InfoRow fieldName="Execution response">
-            {activity.executionResponse.split("\n").map((s) => (
-              <p>{s}</p>
+            {activity.executionResponse.split("\n").map((s, index) => (
+              <p key={index}>{s}</p>
             ))}
           </InfoRow>
         </dl>

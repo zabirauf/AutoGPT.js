@@ -1,21 +1,22 @@
 import { addThoughtArgsToSchema, getFunctionSchema } from 'AutoGPT/utils/functionsSchema';
-import { CallLLMChatCompletionResponse, CallLLMChatCompletionResponseStatus, CallLLMChatCompletionResponseSuccess } from 'AutoGPT/utils/llmUtils';
+import { CallLLMChatCompletionResponseStatus } from 'AutoGPT/utils/llmUtils';
 import { chatWithAI } from 'AutoGPT/utils/chat';
-import { executeCommand, getCommand } from 'AutoGPT/commandPlugins/index';
+import { executeCommand } from 'AutoGPT/commandPlugins/index';
 import { generatePrompt } from 'AutoGPT/utils/promptV2';
 import { permanentMemory } from 'AutoGPT/commandPlugins/MemoryCommandPlugins';
-import { useCallback } from 'react';
-import { useEffect, useRef, useState } from 'react';
-import type { LLMMessage, LLMModel } from "AutoGPT/utils/types";
+import {
+  useCallback,
+  useEffect,
+  useRef,
+  useState
+  } from 'react';
+import type { AIResponseSchema, LLMMessage, LLMModel } from "AutoGPT/utils/types";
 import { useAIState } from "~/components/AIStateProvider";
-import type { AIResponseSchema } from "AutoGPT/utils/types";
 import { generateID } from "~/utils/generateID";
-import { Activity } from "~/types/Activity";
+import type { Activity } from "~/types/Activity";
 
 const USER_INPUT =
   "Determine which function to call.";
-
-const RESPONSE_SCHEMA = "JSON" as const;
 
 export function useAutoGPTChat(
   onActivity: (activity: Activity) => void,

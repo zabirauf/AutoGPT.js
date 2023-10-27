@@ -1,10 +1,10 @@
+import { countMessageTokens } from './tokenCounter';
 import {
   callLLMChatCompletion,
-  CallLLMChatCompletionArgs,
-  CallLLMChatCompletionResponse,
+  type CallLLMChatCompletionArgs,
+  type CallLLMChatCompletionResponse,
   CallLLMChatCompletionResponseStatus
   } from './llmUtils';
-import { countMessageTokens } from './tokenCounter';
 import type { LLMMessage, LLMModel } from "./types";
 
 interface ChatWithAiArgs {

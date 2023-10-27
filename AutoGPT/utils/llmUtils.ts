@@ -46,7 +46,7 @@ export async function callLLMChatCompletion({
     model,
     messages,
     functions,
-    function_call: !!functions ? "auto" : undefined,
+    function_call: functions ? "auto" : undefined,
     temperature,
     max_tokens: maxTokens,
   };

@@ -1,6 +1,6 @@
 import { callAIFunction } from 'AutoGPT/utils/llmUtils';
-import { CommandPlugin } from './CommandPlugin';
 import { getConfig } from 'AutoGPT/utils/config';
+import type { CommandPlugin } from './CommandPlugin';
 
 async function createCode(descriptionOfCode: string): Promise<string> {
   const functionString = "function createCode(description: string): string {";

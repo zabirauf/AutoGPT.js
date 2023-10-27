@@ -1,4 +1,3 @@
-import GitHubMarkSvg from './github-mark.svg';
 import { Dialog, Transition } from '@headlessui/react';
 import { FolderIcon } from '@heroicons/react/24/outline';
 import {
@@ -24,12 +23,12 @@ export function AskFilePermission({
       setOpen(false);
       onDone();
     });
-  }, []);
+  }, [onUserApprovedPermission, onDone]);
 
   const onCancelled = useCallback(() => {
     setOpen(false);
     onDone();
-  }, []);
+  }, [onDone]);
 
   return (
     <Transition.Root show={open} as={Fragment}>

@@ -1,5 +1,4 @@
 import { CommandPlugins } from '../commandPlugins';
-import { ResponseSchema } from './types';
 
 const promptStart =
   "Your decisions must always be made independently without seeking user assistance. Play to your strengths as an LLM and pursue simple strategies with no legal complications.";

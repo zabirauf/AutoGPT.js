@@ -1,4 +1,4 @@
-import { CommandPlugin } from './CommandPlugin';
+import type { CommandPlugin } from './CommandPlugin';
 
 export let taskComplete = false;
 

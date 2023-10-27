@@ -1,4 +1,4 @@
-import { CommandPlugin } from './CommandPlugin';
+import type { CommandPlugin } from './CommandPlugin';
 
 export const permanentMemory: string[] = [];
 
@@ -8,13 +8,6 @@ function commitMemory(val: string) {
   return `Committing memory with key ${
     permanentMemory.length - 1
   } and string "${val}"`;
-}
-
-function getMemory(index: number) {
-  if (index >= permanentMemory.length) {
-    return "Invalid key, cannot retrieve memory.";
-  }
-  return permanentMemory[index];
 }
 
 function deleteMemory(index: number) {

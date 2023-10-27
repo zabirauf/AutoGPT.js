@@ -1,5 +1,5 @@
-import { CommandPlugin } from './CommandPlugin';
 import { getConfig } from 'AutoGPT/utils/config';
+import type { CommandPlugin } from './CommandPlugin';
 import {
   callLLMChatCompletion,
   CallLLMChatCompletionResponseStatus,
@@ -24,7 +24,7 @@ async function startAgent(
   model: LLMModel
 ) {
   const firstMessage = `You are ${name}. Respond with: "Acknowledged".`;
-  const { key, agentReply } = await createAgent(
+  const { key } = await createAgent(
     name,
     task,
     firstMessage,
